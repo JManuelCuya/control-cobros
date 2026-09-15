@@ -1,5 +1,6 @@
 import React from 'react';
 import { LogOut, Tv, PanelLeftClose, PanelLeftOpen, Menu } from 'lucide-react';
+import { confirmDialog } from '../utils/confirmDialog';
 
 interface NavbarProps {
   user: any;
@@ -61,8 +62,8 @@ export const Navbar: React.FC<NavbarProps> = ({ user, onLogout, isCollapsed, onT
         </div>
 
         <button
-          onClick={() => {
-            if (window.confirm('¿Estás seguro de que deseas cerrar sesión?')) {
+          onClick={async () => {
+            if (await confirmDialog('¿Estás seguro de que deseas cerrar sesión?')) {
               onLogout();
             }
           }}

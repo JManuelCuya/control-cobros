@@ -86,7 +86,7 @@ export const ProveedoresPage: React.FC = () => {
   };
 
   const handleEliminar = async (id: number) => {
-    if (!confirm('¿Desea eliminar este proveedor?')) return;
+    if (!(await confirmDialog('¿Desea eliminar este proveedor?'))) return;
     try {
       await proveedoresApi.delete(id);
       await cargarProveedores();

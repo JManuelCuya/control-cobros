@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Receipt, PlusCircle, Eye, Printer, X, Trash2, CheckCircle2, DollarSign, AlertCircle, CheckCircle } from 'lucide-react';
 import { facturacionApi, clientesApi, contratosApi, productosApi, pedidosApi } from '../services/api';
 import toast from 'react-hot-toast';
+import { confirmDialog } from '../utils/confirmDialog';
 
 const MESES = [
   'ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO',
@@ -292,7 +293,7 @@ export const FacturacionPage: React.FC<FacturacionProps> = ({ onNavigate }) => {
   };
 
   const handleMarcarPagado = async (id: number) => {
-    if (!window.confirm('¿Confirmar el cobro de este comprobante? Esto actualizará la ganancia real.')) return;
+    if (!(await confirmDialog('¿Confirmar el cobro de este comprobante? Esto actualizará la ganancia real.'))) return;
     try {
       await facturacionApi.cambiarEstadoPago(id, 'PAGADO');
       await cargarDatos();

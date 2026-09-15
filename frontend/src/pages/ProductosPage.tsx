@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Package, PlusCircle, Edit2, Trash2, X } from 'lucide-react';
 import { productosApi, categoriasApi } from '../services/api';
 import toast from 'react-hot-toast';
+import { confirmDialog } from '../utils/confirmDialog';
 
 interface Producto {
   id: number;
@@ -104,7 +105,7 @@ export const ProductosPage: React.FC = () => {
   };
 
   const handleEliminar = async (id: number) => {
-    if (!confirm('¿Desea eliminar este producto?')) return;
+    if (!(await confirmDialog('¿Desea eliminar este producto?'))) return;
     try {
       await productosApi.delete(id);
       toast.success('Producto eliminado exitosamente');

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { PlusCircle, Edit2, Trash2, X, Search, FileText } from 'lucide-react';
 import { clientesApi, contratosApi, planesApi, pedidosApi } from '../services/api';
 import toast from 'react-hot-toast';
+import { confirmDialog } from '../utils/confirmDialog';
 
 interface Cliente {
   id: number;
@@ -149,7 +150,7 @@ export const ClientesPage: React.FC = () => {
   };
 
   const handleEliminar = async (id: number) => {
-    if (!confirm('¿Desea eliminar este cliente?')) return;
+    if (!(await confirmDialog('¿Desea eliminar este cliente?'))) return;
     try {
       await clientesApi.delete(id);
       toast.success('Cliente eliminado');

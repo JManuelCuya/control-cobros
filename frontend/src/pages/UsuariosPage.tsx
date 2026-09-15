@@ -127,7 +127,7 @@ export const UsuariosPage: React.FC<UsuariosPageProps> = ({ currentUser }) => {
       alert('Solo un Administrador puede eliminar usuarios.');
       return;
     }
-    if (!confirm('¿Desea eliminar este usuario?')) return;
+    if (!(await confirmDialog('¿Desea eliminar este usuario?'))) return;
     try {
       await usuariosApi.delete(id);
       await cargarDatos();

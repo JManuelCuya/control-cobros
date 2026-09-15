@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Award, PlusCircle, Edit2, Trash2, X, Package } from 'lucide-react';
 import { planesApi, productosApi } from '../services/api';
 import toast from 'react-hot-toast';
+import { confirmDialog } from '../utils/confirmDialog';
 
 interface Producto {
   id: number;
@@ -111,7 +112,7 @@ export const PlanesPage: React.FC = () => {
   };
 
   const handleEliminar = async (id: number) => {
-    if (!confirm('¿Desea eliminar este plan/paquete?')) return;
+    if (!(await confirmDialog('¿Desea eliminar este plan/paquete?'))) return;
     try {
       await planesApi.delete(id);
       toast.success('Plan eliminado con éxito');

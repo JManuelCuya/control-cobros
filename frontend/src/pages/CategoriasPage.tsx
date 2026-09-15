@@ -69,7 +69,7 @@ export const CategoriasPage: React.FC = () => {
   };
 
   const handleEliminar = async (id: number) => {
-    if (!confirm('¿Está seguro de eliminar esta categoría?')) return;
+    if (!(await confirmDialog('¿Está seguro de eliminar esta categoría?'))) return;
     try {
       await categoriasApi.delete(id);
       await cargarCategorias();

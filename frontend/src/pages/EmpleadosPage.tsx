@@ -91,7 +91,7 @@ export const EmpleadosPage: React.FC = () => {
   };
 
   const handleEliminar = async (id: number) => {
-    if (!confirm('¿Desea eliminar este empleado?')) return;
+    if (!(await confirmDialog('¿Desea eliminar este empleado?'))) return;
     try {
       await empleadosApi.delete(id);
       await cargarEmpleados();
