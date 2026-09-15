@@ -230,6 +230,13 @@ body {
   border-bottom: 1px solid var(--border-color);
 }
 
+.data-table td {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
 .data-table th {
   background-color: #f8fafc;
   color: var(--text-muted);
