@@ -100,9 +100,19 @@ model Empleado {
   @@map("Empleado")
 }
 
+model Pais {
+  id           Int            @id
+  descripcion  String
+  departamentos Departamento[]
+
+  @@map("pais")
+}
+
 model Departamento {
   id          Int         @id @default(autoincrement())
   descripcion String
+  id_pais     Int?        @default(15)
+  pais        Pais?       @relation(fields: [id_pais], references: [id])
   provincias  Provincia[]
   clientes    Cliente[]
   proveedores Proveedor[]
