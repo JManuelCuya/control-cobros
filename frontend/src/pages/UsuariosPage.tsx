@@ -213,7 +213,7 @@ export const UsuariosPage: React.FC<UsuariosPageProps> = ({ currentUser }) => {
                       <td>
                         {esAdmin && (
                           <button className="btn-danger" onClick={() => handleEliminar(u.id)}>
-                            <Trash2 size={14} /> Eliminar
+                            <Trash2 size={14} />
                           </button>
                         )}
                       </td>

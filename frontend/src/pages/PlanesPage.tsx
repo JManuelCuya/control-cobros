@@ -191,12 +191,12 @@ export const PlanesPage: React.FC = () => {
                       <td style={{ display: 'flex', gap: '0.5rem' }}>
                         <button 
                           className="btn-primary" 
-                          style={{ padding: '0.3rem 0.6rem', fontSize: '0.85rem' }}
+                          style={{ padding: '0.4rem', fontSize: '0.85rem' }}
                           onClick={() => openEditModal(pl)}
                         >
-                          <Edit2 size={14} /> Editar
+                          <Edit2 size={14} />
                         </button>
-                        <button className="btn-danger" style={{ padding: '0.3rem 0.6rem' }} onClick={() => handleEliminar(pl.id)}>
+                        <button className="btn-danger" style={{ padding: '0.4rem' }} onClick={() => handleEliminar(pl.id)}>
                           <Trash2 size={14} />
                         </button>
                       </td>

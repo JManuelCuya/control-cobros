@@ -169,13 +169,13 @@ export const ProductosPage: React.FC = () => {
                     <td style={{ display: 'flex', gap: '0.5rem' }}>
                       <button 
                         className="btn-primary" 
-                        style={{ padding: '0.3rem 0.6rem', fontSize: '0.85rem' }}
+                        style={{ padding: '0.4rem', fontSize: '0.85rem' }}
                         onClick={() => openEditModal(p)}
                       >
-                        <Edit2 size={14} /> Editar
+                        <Edit2 size={14} />
                       </button>
                       <button className="btn-danger" onClick={() => handleEliminar(p.id)}>
-                        <Trash2 size={14} /> Eliminar
+                        <Trash2 size={14} />
                       </button>
                     </td>
                   </tr>

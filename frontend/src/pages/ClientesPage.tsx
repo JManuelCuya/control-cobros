@@ -268,7 +268,7 @@ export const ClientesPage: React.FC = () => {
                     <td style={{ display: 'flex', gap: '0.5rem' }}>
                       <button 
                         className="btn-primary" 
-                        style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', backgroundColor: '#0284c7' }}
+                        style={{ padding: '0.4rem', fontSize: '0.75rem', backgroundColor: '#0284c7' }}
                         onClick={() => openContratosModal(c)}
                         title="Gestionar planes de cable"
                       >
@@ -276,14 +276,14 @@ export const ClientesPage: React.FC = () => {
                       </button>
                       <button 
                         className="btn-primary" 
-                        style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', backgroundColor: '#475569' }}
+                        style={{ padding: '0.4rem', fontSize: '0.75rem', backgroundColor: '#475569' }}
                         onClick={() => openEditModal(c)}
                       >
                         <Edit2 size={14} />
                       </button>
                       <button 
                         className="btn-danger" 
-                        style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem' }}
+                        style={{ padding: '0.4rem', fontSize: '0.75rem' }}
                         onClick={() => handleEliminar(c.id)}
                       >
                         <Trash2 size={14} />

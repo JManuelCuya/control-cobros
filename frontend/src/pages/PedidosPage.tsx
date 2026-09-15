@@ -186,9 +186,9 @@ export const PedidosPage: React.FC = () => {
                         <button 
                           onClick={() => handleOpenEdit(p)} 
                           className="btn-primary" 
-                          style={{ padding: '0.3rem 0.6rem', fontSize: '0.85rem' }}
+                          style={{ padding: '0.4rem', fontSize: '0.85rem' }}
                         >
-                          <Edit2 size={14} /> Editar Estado
+                          <Edit2 size={14} /> Estado
                         </button>
                       </td>
                     </tr>

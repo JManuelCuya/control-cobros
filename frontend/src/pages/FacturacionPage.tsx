@@ -437,7 +437,7 @@ export const FacturacionPage: React.FC<FacturacionProps> = ({ onNavigate }) => {
                       <div style={{ display: 'flex', gap: '0.5rem' }}>
                         <button 
                           className="btn-primary" 
-                          style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', backgroundColor: '#475569' }}
+                          style={{ padding: '0.4rem', fontSize: '0.75rem', backgroundColor: '#475569' }}
                           onClick={() => setPreviewComp(c)}
                         >
                           <Eye size={14} /> Ver
@@ -445,11 +445,11 @@ export const FacturacionPage: React.FC<FacturacionProps> = ({ onNavigate }) => {
                         {c.estado_pago === 'POR_PAGAR' && c.estado !== 'ANULADO' && (
                           <button 
                             className="btn-primary" 
-                            style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', backgroundColor: '#10b981' }}
+                            style={{ padding: '0.4rem', fontSize: '0.75rem', backgroundColor: '#10b981' }}
                             onClick={() => handleMarcarPagado(c.id)}
                             title="Registrar el cobro en caja y sumarlo a Ganancia Real"
                           >
-                            <DollarSign size={14} /> Cobrar
+                            <DollarSign size={14} />
                           </button>
                         )}
                       </div>
@@ -609,7 +609,7 @@ export const FacturacionPage: React.FC<FacturacionProps> = ({ onNavigate }) => {
                         localStorage.setItem('autoOpenContratosCliente', selectedClienteId);
                         if (onNavigate) onNavigate('clientes');
                       }} 
-                      style={{ fontSize: '0.8rem', padding: '0.3rem 0.6rem', backgroundColor: '#ef4444', color: '#fff', border: 'none', borderRadius: '0.25rem', cursor: 'pointer', fontWeight: 600 }}
+                      style={{ fontSize: '0.8rem', padding: '0.4rem', backgroundColor: '#ef4444', color: '#fff', border: 'none', borderRadius: '0.25rem', cursor: 'pointer', fontWeight: 600 }}
                     >
                       Ir a Gestión de Clientes
                     </button>
@@ -890,7 +890,7 @@ export const FacturacionPage: React.FC<FacturacionProps> = ({ onNavigate }) => {
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
               <button className="btn-primary" onClick={() => window.print()}>
-                <Printer size={16} /> Imprimir Comprobante
+                <Printer size={16} /> Comprobante
               </button>
               <button className="btn-danger" onClick={() => setPreviewComp(null)}>
                 Cerrar
