@@ -30,7 +30,7 @@ export const Navbar: React.FC<NavbarProps> = ({ user, onLogout, isCollapsed, onT
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, color: 'var(--accent-blue)' }}>
           <Tv size={20} />
-          <span>CABLE TV - Sistema de Control de Ventas e Inventario</span>
+          <span>CABLE TV <span className="hide-on-mobile">- Sistema de Control de Ventas e Inventario</span></span>
         </div>
       </div>
 

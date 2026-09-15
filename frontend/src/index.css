@@ -503,4 +503,8 @@ body {
   .mobile-stack {
     grid-template-columns: 1fr !important;
   }
+  
+  .hide-on-mobile {
+    display: none !important;
+  }
 }
