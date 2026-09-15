@@ -504,6 +504,11 @@ body {
     grid-template-columns: 1fr !important;
   }
   
+  .cards-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.5rem;
+  }
+  
   .hide-on-mobile {
     display: none !important;
   }
