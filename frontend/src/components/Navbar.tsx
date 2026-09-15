@@ -61,7 +61,11 @@ export const Navbar: React.FC<NavbarProps> = ({ user, onLogout, isCollapsed, onT
         </div>
 
         <button
-          onClick={onLogout}
+          onClick={() => {
+            if (window.confirm('¿Estás seguro de que deseas cerrar sesión?')) {
+              onLogout();
+            }
+          }}
           className="btn-danger"
           style={{ padding: '0.4rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           title="Cerrar Sesión"
