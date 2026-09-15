@@ -52,9 +52,9 @@ export const Navbar: React.FC<NavbarProps> = ({ user, onLogout, isCollapsed, onT
           </div>
           <div>
             <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-main)' }}>
-              {user?.descripcion || user?.correo || 'Usuario'}
+              {(user?.descripcion || user?.correo || 'Usuario').split(' ')[0]}
             </div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+            <div className="hide-on-mobile" style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
               {user?.correo}
             </div>
           </div>
@@ -63,10 +63,10 @@ export const Navbar: React.FC<NavbarProps> = ({ user, onLogout, isCollapsed, onT
         <button
           onClick={onLogout}
           className="btn-danger"
-          style={{ padding: '0.4rem 0.8rem', display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem' }}
+          style={{ padding: '0.4rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           title="Cerrar Sesión"
         >
-          <LogOut size={16} /> Salir
+          <LogOut size={16} />
         </button>
       </div>
     </header>

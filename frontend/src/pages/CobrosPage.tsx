@@ -175,7 +175,7 @@ export const CobrosPage: React.FC = () => {
         </div>
 
         {/* Navegador de Año */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', borderRadius: '0.5rem', padding: '0.25rem 0.75rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', justifyContent: 'center', backgroundColor: '#ffffff', border: '1px solid var(--border-color)', borderRadius: '0.5rem', padding: '0.25rem 0.75rem' }}>
           <button 
             className="close-btn" 
             style={{ padding: '0.2rem' }} 
