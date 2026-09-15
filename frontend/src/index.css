@@ -542,6 +542,34 @@ body {
     display: none !important;
   }
   
+  /* Global font size adjustments for mobile */
+  body {
+    font-size: 0.9rem;
+  }
+  
+  .page-title {
+    font-size: 1.25rem !important;
+  }
+  
+  .data-table th, .data-table td {
+    padding: 0.65rem 0.5rem !important;
+    font-size: 0.8rem !important;
+  }
+  
+  .btn-primary, .btn-danger {
+    font-size: 0.85rem !important;
+    padding: 0.5rem 1rem !important;
+  }
+  
+  .form-input, .form-select {
+    font-size: 0.85rem !important;
+    padding: 0.5rem 0.75rem !important;
+  }
+  
+  .form-group label {
+    font-size: 0.8rem !important;
+  }
+  
   .hide-on-mobile {
     display: none !important;
   }
