@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { confirmDialog } from '../utils/confirmDialog';
 import { Shield, PlusCircle, Trash2, CheckCircle2, XCircle, X, ShieldAlert, UserCheck, Users, Truck } from 'lucide-react';
 import { usuariosApi, empleadosApi, clientesApi, proveedoresApi } from '../services/api';
 

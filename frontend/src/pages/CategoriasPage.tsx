@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { confirmDialog } from '../utils/confirmDialog';
 import { PlusCircle, Tag, Trash2, Edit2, X } from 'lucide-react';
 import { categoriasApi } from '../services/api';
 
