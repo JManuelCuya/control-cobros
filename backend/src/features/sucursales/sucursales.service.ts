@@ -1,4 +1,4 @@
-import prisma from '../../shared/config/db';
+import { prisma } from '../../shared/db';
 
 export const getAll = async () => {
   return await prisma.sucursal.findMany({
