@@ -134,3 +134,12 @@ export const usuariosApi = {
   update: (id: number, data: any) => request<any>(`/usuarios/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   delete: (id: number) => request<any>(`/usuarios/${id}`, { method: 'DELETE' }),
 };
+
+// 11. Sucursales API
+export const sucursalesApi = {
+  getAll: () => request<any[]>('/sucursales'),
+  getById: (id: number) => request<any>(`/sucursales/${id}`),
+  create: (data: any) => request<any>('/sucursales', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id: number, data: any) => request<any>(`/sucursales/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: (id: number) => request<any>(`/sucursales/${id}`, { method: 'DELETE' }),
+};

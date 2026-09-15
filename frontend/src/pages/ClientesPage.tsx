@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PlusCircle, Edit2, Trash2, X, Search, FileText } from 'lucide-react';
-import { clientesApi, contratosApi, planesApi, pedidosApi } from '../services/api';
-import { sucursalesApi } from '../api/sucursales.api';
+import { clientesApi, contratosApi, planesApi, pedidosApi, sucursalesApi } from '../services/api';
 import toast from 'react-hot-toast';
 import { confirmDialog } from '../utils/confirmDialog';
 

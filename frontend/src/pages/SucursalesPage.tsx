@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, X, Store, Edit2, Trash2 } from 'lucide-react';
-import { sucursalesApi } from '../api/sucursales.api';
+import { sucursalesApi } from '../services/api';
 import toast from 'react-hot-toast';
 import { confirmDialog } from '../utils/confirmDialog';
 
