@@ -24,5 +24,5 @@ RUN npm run build
 # Expose port 3000
 EXPOSE 3000
 
-# Command to run migrations and then start the backend
-CMD ["sh", "-c", "npx prisma db push && npm run start"]
+# Command to run migrations, seed the database and then start the backend
+CMD ["sh", "-c", "npx prisma db push && npm run seed && npm run start"]
