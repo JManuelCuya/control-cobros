@@ -130,7 +130,8 @@ export const CategoriasPage: React.FC = () => {
           {loading ? (
             <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>Cargando categorías...</div>
           ) : (
-            <table className="data-table">
+            <div className="table-responsive">
+                <table className="data-table">
               <thead>
                 <tr>
                   <th>ID</th>
@@ -174,6 +175,7 @@ export const CategoriasPage: React.FC = () => {
                 )}
               </tbody>
             </table>
+              </div>
           )}
         </div>
       </div>

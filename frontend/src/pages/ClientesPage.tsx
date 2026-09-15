@@ -240,7 +240,8 @@ export const ClientesPage: React.FC = () => {
         {loading ? (
           <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>Cargando clientes...</div>
         ) : (
-          <table className="data-table">
+          <div className="table-responsive">
+                <table className="data-table">
             <thead>
               <tr>
                 <th>ID</th>
@@ -293,6 +294,7 @@ export const ClientesPage: React.FC = () => {
               )}
             </tbody>
           </table>
+              </div>
         )}
       </div>
 
@@ -430,7 +432,8 @@ export const ClientesPage: React.FC = () => {
                 </div>
 
                 <div className="table-card" style={{ marginBottom: 0 }}>
-                  <table className="data-table">
+                  <div className="table-responsive">
+                <table className="data-table">
                     <thead>
                       <tr>
                         <th>N°</th>
@@ -468,6 +471,7 @@ export const ClientesPage: React.FC = () => {
                       )}
                     </tbody>
                   </table>
+              </div>
                 </div>
               </>
             ) : (

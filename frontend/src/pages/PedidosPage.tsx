@@ -144,7 +144,8 @@ export const PedidosPage: React.FC = () => {
         {loading ? (
           <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>Cargando pedidos...</div>
         ) : (
-          <table className="data-table">
+          <div className="table-responsive">
+                <table className="data-table">
             <thead>
               <tr>
                 <th>ID Pedido</th>
@@ -196,6 +197,7 @@ export const PedidosPage: React.FC = () => {
               )}
             </tbody>
           </table>
+              </div>
         )}
       </div>
 

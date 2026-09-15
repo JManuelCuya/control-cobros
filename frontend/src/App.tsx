@@ -19,6 +19,7 @@ export const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [activeTab, setActiveTab] = useState('facturacion');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   useEffect(() => {
     const savedUser = localStorage.getItem('usuario_sistema');
@@ -81,14 +82,27 @@ export const App: React.FC = () => {
     }
   };
 
+  const handleMobileSidebarClose = () => setIsMobileSidebarOpen(false);
+
   return (
     <div className="app-container">
       <Toaster position="top-right" />
+      {/* Overlay para móvil */}
+      <div 
+        className={`sidebar-overlay ${isMobileSidebarOpen ? 'mobile-open' : ''}`}
+        onClick={handleMobileSidebarClose}
+      ></div>
+
       <Sidebar 
         activeTab={activeTab} 
-        setActiveTab={setActiveTab} 
+        setActiveTab={(tab) => {
+          setActiveTab(tab);
+          handleMobileSidebarClose();
+        }} 
         user={currentUser} 
         isCollapsed={isSidebarCollapsed}
+        isMobileOpen={isMobileSidebarOpen}
+        onMobileClose={handleMobileSidebarClose}
       />
       <div className="main-content">
         <Navbar 
@@ -96,6 +110,7 @@ export const App: React.FC = () => {
           onLogout={handleLogout}
           isCollapsed={isSidebarCollapsed}
           onToggleSidebar={handleToggleSidebar}
+          onToggleMobileSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
         />
         <main className="page-container">
           {renderContent()}

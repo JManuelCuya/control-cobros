@@ -162,7 +162,8 @@ export const UsuariosPage: React.FC<UsuariosPageProps> = ({ currentUser }) => {
         {loading ? (
           <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>Cargando usuarios...</div>
         ) : (
-          <table className="data-table">
+          <div className="table-responsive">
+                <table className="data-table">
             <thead>
               <tr>
                 <th>ID</th>
@@ -222,6 +223,7 @@ export const UsuariosPage: React.FC<UsuariosPageProps> = ({ currentUser }) => {
               )}
             </tbody>
           </table>
+              </div>
         )}
       </div>
 

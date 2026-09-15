@@ -1,17 +1,25 @@
 import React from 'react';
-import { LogOut, Tv, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { LogOut, Tv, PanelLeftClose, PanelLeftOpen, Menu } from 'lucide-react';
 
 interface NavbarProps {
   user: any;
   onLogout: () => void;
   isCollapsed: boolean;
   onToggleSidebar: () => void;
+  onToggleMobileSidebar?: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ user, onLogout, isCollapsed, onToggleSidebar }) => {
+export const Navbar: React.FC<NavbarProps> = ({ user, onLogout, isCollapsed, onToggleSidebar, onToggleMobileSidebar }) => {
   return (
     <header className="header">
       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <button
+          className="mobile-menu-btn"
+          onClick={onToggleMobileSidebar}
+          title="Abrir menú"
+        >
+          <Menu size={24} />
+        </button>
         <button
           className="toggle-sidebar-btn"
           onClick={onToggleSidebar}

@@ -372,7 +372,8 @@ export const FacturacionPage: React.FC<FacturacionProps> = ({ onNavigate }) => {
         {loading ? (
           <div style={{ padding: '2.5rem', textAlign: 'center', color: 'var(--text-muted)' }}>Cargando comprobantes...</div>
         ) : (
-          <table className="data-table">
+          <div className="table-responsive">
+                <table className="data-table">
             <thead>
               <tr>
                 <th>Comprobante N°</th>
@@ -458,6 +459,7 @@ export const FacturacionPage: React.FC<FacturacionProps> = ({ onNavigate }) => {
               )}
             </tbody>
           </table>
+              </div>
         )}
       </div>
 

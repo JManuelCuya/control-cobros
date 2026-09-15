@@ -24,13 +24,17 @@ interface SidebarProps {
   setActiveTab: (tab: string) => void;
   user?: any;
   isCollapsed: boolean;
+  isMobileOpen?: boolean;
+  onMobileClose?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ 
   activeTab, 
   setActiveTab, 
   user, 
-  isCollapsed 
+  isCollapsed,
+  isMobileOpen,
+  onMobileClose
 }) => {
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({ ventas: true, socios: true, inventario: true, gestion: true });
 
@@ -87,7 +91,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   });
 
   return (
-    <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
+    <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''} ${isMobileOpen ? 'mobile-open' : ''}`}>
       <div className="sidebar-brand">
         <Tv size={28} color="var(--accent-blue)" style={{ flexShrink: 0 }} />
         <span>CABLE TV</span>

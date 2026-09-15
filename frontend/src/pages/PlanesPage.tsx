@@ -137,7 +137,8 @@ export const PlanesPage: React.FC = () => {
         {loading ? (
           <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>Cargando planes...</div>
         ) : (
-          <table className="data-table">
+          <div className="table-responsive">
+                <table className="data-table">
             <thead>
               <tr>
                 <th>ID</th>
@@ -205,6 +206,7 @@ export const PlanesPage: React.FC = () => {
               )}
             </tbody>
           </table>
+              </div>
         )}
       </div>
 
