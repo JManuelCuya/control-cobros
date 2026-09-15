@@ -12,6 +12,7 @@ import { EmpleadosPage } from './pages/EmpleadosPage';
 import { ProveedoresPage } from './pages/ProveedoresPage';
 import { PlanesPage } from './pages/PlanesPage';
 import { UsuariosPage } from './pages/UsuariosPage';
+import { SucursalesPage } from './pages/SucursalesPage';
 
 import { Toaster } from 'react-hot-toast';
 
@@ -77,6 +78,8 @@ export const App: React.FC = () => {
         return <PlanesPage />;
       case 'usuarios':
         return <UsuariosPage currentUser={currentUser} />;
+      case 'sucursales':
+        return <SucursalesPage />;
       default:
         return <FacturacionPage onNavigate={setActiveTab} />;
     }

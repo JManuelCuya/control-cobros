@@ -15,6 +15,7 @@ import proveedoresRoutes from './features/proveedores/proveedores.routes';
 import planesRoutes from './features/planes/planes.routes';
 import ubigeoRoutes from './features/ubigeo/ubigeo.routes';
 import usuariosRoutes from './features/usuarios/usuarios.routes';
+import sucursalesRoutes from './features/sucursales/sucursales.routes';
 
 import { errorHandler } from './shared/middleware/error.middleware';
 
@@ -39,6 +40,7 @@ export function createServer(): Application {
   app.use('/api/planes', planesRoutes);
   app.use('/api/ubigeo', ubigeoRoutes);
   app.use('/api/usuarios', usuariosRoutes);
+  app.use('/api/sucursales', sucursalesRoutes);
 
   // Endpoint de salud
   app.get('/api/health', (req, res) => {

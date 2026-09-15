@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { PlusCircle, Edit2, Trash2, X, Search, FileText } from 'lucide-react';
 import { clientesApi, contratosApi, planesApi, pedidosApi } from '../services/api';
+import { sucursalesApi } from '../api/sucursales.api';
 import toast from 'react-hot-toast';
 import { confirmDialog } from '../utils/confirmDialog';
 
@@ -13,6 +14,8 @@ interface Cliente {
   telefono?: string;
   email?: string;
   direccion?: string;
+  id_sucursal?: number;
+  sucursal?: any;
 }
 
 interface Plan {
@@ -36,6 +39,7 @@ interface Contrato {
 export const ClientesPage: React.FC = () => {
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [planes, setPlanes] = useState<Plan[]>([]);
+  const [sucursales, setSucursales] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -63,7 +67,8 @@ export const ClientesPage: React.FC = () => {
     num_doc: '',
     telefono: '',
     email: '',
-    direccion: ''
+    direccion: '',
+    id_sucursal: ''
   });
 
   const cargarClientes = async () => {
@@ -89,7 +94,17 @@ export const ClientesPage: React.FC = () => {
     }
   };
 
-  useEffect(() => {
+  
+  const cargarSucursales = async () => {
+    try {
+      const data = await sucursalesApi.getAll();
+      setSucursales(data);
+    } catch (err) {
+      console.error('Error al cargar sucursales:', err);
+    }
+  };
+useEffect(() => {
+    cargarSucursales();
     cargarClientes().then((data) => {
       const autoOpenId = localStorage.getItem('autoOpenContratosCliente');
       if (autoOpenId && data) {
@@ -113,7 +128,8 @@ export const ClientesPage: React.FC = () => {
       num_doc: '',
       telefono: '',
       email: '',
-      direccion: ''
+      direccion: '',
+      id_sucursal: ''
     });
     setIsModalOpen(true);
   };
@@ -127,7 +143,8 @@ export const ClientesPage: React.FC = () => {
       num_doc: c.num_doc || '',
       telefono: c.telefono || '',
       email: c.email || '',
-      direccion: c.direccion || ''
+      direccion: c.direccion || '',
+      id_sucursal: c.id_sucursal ? String(c.id_sucursal) : ''
     });
     setIsModalOpen(true);
   };
@@ -135,11 +152,16 @@ export const ClientesPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const payload = {
+        ...formData,
+        id_sucursal: formData.id_sucursal ? Number(formData.id_sucursal) : undefined
+      };
+      
       if (editingCliente) {
-        await clientesApi.update(editingCliente.id, formData);
+        await clientesApi.update(editingCliente.id, payload);
         toast.success('Cliente actualizado con éxito');
       } else {
-        await clientesApi.create(formData);
+        await clientesApi.create(payload);
         toast.success('Cliente registrado con éxito');
       }
       setIsModalOpen(false);
@@ -248,6 +270,7 @@ export const ClientesPage: React.FC = () => {
                 <th>ID</th>
                 <th>Cliente</th>
                 <th>Doc Identidad</th>
+                <th>Sucursal</th>
                 <th>Teléfono</th>
                 <th>Dirección Principal</th>
                 <th>Acciones</th>
@@ -264,7 +287,21 @@ export const ClientesPage: React.FC = () => {
                     <td>#{c.id}</td>
                     <td style={{ fontWeight: 600 }}>{c.nombre} {c.apellido}</td>
                     <td>{c.tipo_doc ? `${c.tipo_doc}: ${c.num_doc}` : c.num_doc || '-'}</td>
-                    <td>{c.telefono || '-'}</td>
+                    <td>{c.sucursal ? c.sucursal.descripcion : '-'}</td>
+                    <td>
+                      {c.telefono ? (
+                        <a 
+                          href={`https://wa.me/${c.telefono.replace(/\D/g,'')}`}
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          style={{ color: '#25D366', fontWeight: 'bold', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+                          title="Enviar WhatsApp"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                          {c.telefono}
+                        </a>
+                      ) : '-'}
+                    </td>
                     <td>{c.direccion || '-'}</td>
                     <td style={{ display: 'flex', gap: '0.5rem' }}>
                       <button 

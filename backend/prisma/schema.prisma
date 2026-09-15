@@ -136,6 +136,18 @@ model Distrito {
   @@map("distrito")
 }
 
+model Sucursal {
+  id           Int       @id @default(autoincrement())
+  descripcion  String
+  direccion    String?
+  distrito     String?
+  provincia    String?
+  departamento String?
+  clientes     Cliente[]
+
+  @@map("sucursal")
+}
+
 model Cliente {
   id               Int           @id @default(autoincrement())
   nombre           String
@@ -145,6 +157,7 @@ model Cliente {
   id_departamento  Int?
   id_provincia     Int?
   id_distrito      Int?
+  id_sucursal      Int?
   telefono         String?
   email            String?
   correo           String?
@@ -153,6 +166,7 @@ model Cliente {
   departamento     Departamento? @relation(fields: [id_departamento], references: [id])
   provincia        Provincia?    @relation(fields: [id_provincia], references: [id])
   distrito         Distrito?     @relation(fields: [id_distrito], references: [id])
+  sucursal         Sucursal?     @relation(fields: [id_sucursal], references: [id])
   usuarios         Usuario[]
   pedidos          Pedido[]
   comprobantes     Comprobante[]

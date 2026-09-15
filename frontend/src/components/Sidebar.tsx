@@ -16,7 +16,8 @@ import {
   Briefcase,
   ShoppingCart,
   Archive,
-  Settings
+  Settings,
+  Store
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -74,13 +75,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
       icon: Settings,
       children: [
         { id: 'cobros', label: 'Control de Cobros', icon: CalendarCheck },
+        { id: 'sucursales', label: 'Sucursales', icon: Store },
         { id: 'usuarios', label: 'Usuarios / Roles', icon: Shield }
       ]
     }
   ];
 
   const vistasPermitidas: string[] = user?.vistasPermitidas || [
-    'facturacion', 'cobros', 'pedidos', 'productos', 'categorias', 'clientes', 'empleados', 'proveedores', 'planes', 'usuarios'
+    'facturacion', 'cobros', 'pedidos', 'productos', 'categorias', 'clientes', 'empleados', 'proveedores', 'planes', 'usuarios', 'sucursales'
   ];
 
   const filteredItems = allMenuItems.filter(item => {
