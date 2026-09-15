@@ -1,0 +1,47 @@
+# Base .gitignore for Node/React projects
+
+# Dependencies
+node_modules/
+
+# Environment Variables
+.env
+.env.local
+.env.development
+.env.production
+
+# Build Outputs
+dist/
+build/
+out/
+.next/
+.nuxt/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Database & Uploads
+*.sqlite
+*.sqlite3
+uploads/
+images/
+
+# Editor and OS files
+.DS_Store
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Prisma
+/backend/prisma/*.db
+/backend/prisma/*.db-journal
+
+# Other specific to this project
+# add any other folders to ignore here

@@ -1,0 +1,350 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Rol {
+  id           Int          @id @default(autoincrement())
+  descripcion  String
+  usuarioRoles UsuarioRol[]
+  rolesVista   RolVista[]
+
+  @@map("rol")
+}
+
+model Vista {
+  id         Int        @id @default(autoincrement())
+  clave      String     @unique
+  nombre     String
+  rolesVista RolVista[]
+
+  @@map("vista")
+}
+
+model RolVista {
+  id       Int   @id @default(autoincrement())
+  id_rol   Int
+  id_vista Int
+  rol      Rol   @relation(fields: [id_rol], references: [id], onDelete: Cascade)
+  vista    Vista @relation(fields: [id_vista], references: [id], onDelete: Cascade)
+
+  @@unique([id_rol, id_vista])
+  @@map("rol_vista")
+}
+
+model TipoUsuario {
+  id          Int       @id @default(autoincrement())
+  descripcion String
+  usuarios    Usuario[]
+
+  @@map("tipo_de_usuario")
+}
+
+model Usuario {
+  id              Int          @id @default(autoincrement())
+  descripcion     String?
+  correo          String       @unique
+  password        String
+  id_tipo_usuario Int?
+  tipoUsuario     TipoUsuario? @relation(fields: [id_tipo_usuario], references: [id])
+  
+  id_empleado     Int?
+  empleado        Empleado?    @relation(fields: [id_empleado], references: [id])
+  
+  id_cliente      Int?
+  cliente         Cliente?     @relation(fields: [id_cliente], references: [id])
+  
+  id_proveedor    Int?
+  proveedor       Proveedor?   @relation(fields: [id_proveedor], references: [id])
+
+  usuarioRoles    UsuarioRol[]
+
+  @@map("usuario")
+}
+
+model UsuarioRol {
+  id         Int     @id @default(autoincrement())
+  id_usuario Int
+  id_rol     Int
+  usuario    Usuario @relation(fields: [id_usuario], references: [id], onDelete: Cascade)
+  rol        Rol     @relation(fields: [id_rol], references: [id], onDelete: Cascade)
+
+  @@unique([id_usuario, id_rol])
+  @@map("usuario_rol")
+}
+
+model Empleado {
+  id               Int           @id @default(autoincrement())
+  nombre           String
+  apellido         String
+  fecha_nacimiento DateTime?
+  direccion        String?
+  id_departamento  Int?
+  id_provincia     Int?
+  id_distrito      Int?
+  telefono         String?
+  email            String?
+  correo           String?
+  tipo_doc         String?
+  num_doc          String?
+  departamento     Departamento? @relation(fields: [id_departamento], references: [id])
+  provincia        Provincia?    @relation(fields: [id_provincia], references: [id])
+  distrito         Distrito?     @relation(fields: [id_distrito], references: [id])
+  usuarios         Usuario[]
+  pedidos          Pedido[]
+
+  @@map("Empleado")
+}
+
+model Departamento {
+  id          Int         @id @default(autoincrement())
+  descripcion String
+  provincias  Provincia[]
+  clientes    Cliente[]
+  proveedores Proveedor[]
+  empleados   Empleado[]
+
+  @@map("departamento")
+}
+
+model Provincia {
+  id              Int          @id @default(autoincrement())
+  descripcion     String
+  id_departamento Int
+  departamento    Departamento @relation(fields: [id_departamento], references: [id])
+  distritos       Distrito[]
+  clientes        Cliente[]
+  proveedores     Proveedor[]
+  empleados       Empleado[]
+
+  @@map("provincia")
+}
+
+model Distrito {
+  id           Int         @id @default(autoincrement())
+  descripcion  String
+  id_provincia Int
+  provincia    Provincia   @relation(fields: [id_provincia], references: [id])
+  clientes     Cliente[]
+  proveedores  Proveedor[]
+  empleados    Empleado[]
+
+  @@map("distrito")
+}
+
+model Cliente {
+  id               Int           @id @default(autoincrement())
+  nombre           String
+  apellido         String
+  fecha_nacimiento DateTime?
+  direccion        String?
+  id_departamento  Int?
+  id_provincia     Int?
+  id_distrito      Int?
+  telefono         String?
+  email            String?
+  correo           String?
+  tipo_doc         String?
+  num_doc          String?
+  departamento     Departamento? @relation(fields: [id_departamento], references: [id])
+  provincia        Provincia?    @relation(fields: [id_provincia], references: [id])
+  distrito         Distrito?     @relation(fields: [id_distrito], references: [id])
+  usuarios         Usuario[]
+  pedidos          Pedido[]
+  comprobantes     Comprobante[]
+  contratos        Contrato[]
+
+  @@map("cliente")
+}
+
+model Contrato {
+  id                 Int      @id @default(autoincrement())
+  id_cliente         Int
+  cliente            Cliente  @relation(fields: [id_cliente], references: [id], onDelete: Cascade)
+  direccion_servicio String?
+  dia_cobro          Int      @default(15)
+  id_plan            Int?
+  plan               Plan?    @relation(fields: [id_plan], references: [id])
+  precio_acordado    Decimal  @default(50.00) @db.Decimal(10, 2)
+  estado             String   @default("ACTIVO") // "ACTIVO", "SUSPENDIDO", "ANULADO"
+  fecha_inicio       DateTime @default(now())
+  id_pedido          Int?
+  pedido             Pedido?  @relation(fields: [id_pedido], references: [id])
+  cobros             Cobro[]
+  comprobantes       Comprobante[]
+
+  @@map("contrato")
+}
+
+model Cobro {
+  id          Int      @id @default(autoincrement())
+  id_contrato Int
+  contrato    Contrato @relation(fields: [id_contrato], references: [id], onDelete: Cascade)
+  anio        Int
+  mes         Int
+  monto       Decimal  @default(0.00) @db.Decimal(10, 2)
+  estado      String   @default("PAGADO")
+  fecha_pago  DateTime @default(now())
+  observacion String?
+
+  @@unique([id_contrato, anio, mes])
+  @@map("cobro")
+}
+
+model Comprobante {
+  id               Int                  @id @default(autoincrement())
+  tipo_comprobante String               // "FACTURA", "BOLETA", "NOTA_CREDITO", "NOTA_DEBITO"
+  tipo_pago        String               @default("VENTA_PRODUCTO") // "PAGO_PLAN_MENSUAL", "VENTA_PRODUCTO"
+  periodo_mes      Int?
+  periodo_anio     Int?
+  serie            String               // "F001", "B001", "NC01", "ND01"
+  numero           Int                  // Correlativo auto-incrementable
+  id_cliente       Int?
+  cliente_nombre   String
+  cliente_num_doc  String
+  empresa_emisora  String               @default("CABLE TV S.A.C.")
+  fecha_emision    DateTime             @default(now())
+  total            Decimal              @db.Decimal(10, 2)
+  estado           String               @default("EMITIDO") // "EMITIDO", "ANULADO"
+  estado_pago      String               @default("PAGADO")  // "PAGADO", "POR_PAGAR"
+  id_contrato      Int?
+  contrato         Contrato?            @relation(fields: [id_contrato], references: [id])
+  cliente          Cliente?             @relation(fields: [id_cliente], references: [id])
+  detalles         DetalleComprobante[]
+
+  @@map("comprobante")
+}
+
+model DetalleComprobante {
+  id               Int         @id @default(autoincrement())
+  id_comprobante   Int
+  comprobante      Comprobante @relation(fields: [id_comprobante], references: [id], onDelete: Cascade)
+  descripcion_item String
+  cantidad         Int
+  precio_unitario  Decimal     @db.Decimal(10, 2)
+  precio_total     Decimal     @db.Decimal(10, 2)
+
+  @@map("detalle_comprobante")
+}
+
+model Proveedor {
+  id               Int           @id @default(autoincrement())
+  razon_social     String
+  fecha_nacimiento DateTime?
+  direccion        String?
+  id_departamento  Int?
+  id_provincia     Int?
+  id_distrito      Int?
+  telefono         String?
+  email            String?
+  correo           String?
+  tipo_doc         String?
+  num_doc          String?
+  departamento     Departamento? @relation(fields: [id_departamento], references: [id])
+  provincia        Provincia?    @relation(fields: [id_provincia], references: [id])
+  distrito         Distrito?     @relation(fields: [id_distrito], references: [id])
+  usuarios         Usuario[]
+
+  @@map("proveedor")
+}
+
+model CategoriaPlan {
+  id          Int    @id @default(autoincrement())
+  descripcion String
+  planes      Plan[]
+
+  @@map("categoria_plan")
+}
+
+model Plan {
+  id                  Int            @id @default(autoincrement())
+  descripcion         String
+  precio_original     Decimal        @default(0.00) @db.Decimal(10, 2)
+  descuento_porcentaje Decimal       @default(0.00) @db.Decimal(5, 2)
+  precio              Decimal        @db.Decimal(10, 2)
+  id_categoria_plan   Int?
+  categoriaPlan       CategoriaPlan? @relation(fields: [id_categoria_plan], references: [id])
+  contratos           Contrato[]
+  productos           PlanProducto[]
+
+  @@map("planes")
+}
+
+model PlanProducto {
+  id          Int      @id @default(autoincrement())
+  id_plan     Int
+  plan        Plan     @relation(fields: [id_plan], references: [id], onDelete: Cascade)
+  id_producto Int
+  producto    Producto @relation(fields: [id_producto], references: [id], onDelete: Cascade)
+
+  @@unique([id_plan, id_producto])
+  @@map("plan_producto")
+}
+
+model CategoriaProducto {
+  id          Int        @id @default(autoincrement())
+  descripcion String
+  tipo        String     @default("ARTICULO") // "ARTICULO", "SERVICIO"
+  productos   Producto[]
+
+  @@map("categoria_producto")
+}
+
+model Producto {
+  id                    Int                    @id @default(autoincrement())
+  descripcion           String
+  tipo                  String                 @default("ARTICULO") // "ARTICULO", "SERVICIO"
+  precio                Decimal                @default(0.00) @db.Decimal(10, 2)
+  stock                 Int                    @default(0)
+  id_categoria_producto Int?
+  categoriaProducto     CategoriaProducto?     @relation(fields: [id_categoria_producto], references: [id])
+  detallesPedido        DetallePedido[]
+  movimientosInventario MovimientoInventario[]
+  planes                PlanProducto[]
+
+  @@map("producto")
+}
+
+model Pedido {
+  id             Int             @id @default(autoincrement())
+  fecha          DateTime        @default(now())
+  total          Decimal         @db.Decimal(10, 2)
+  estado         String          @default("PENDIENTE")
+  id_cliente     Int
+  cliente        Cliente         @relation(fields: [id_cliente], references: [id])
+  id_empleado    Int?
+  empleado       Empleado?       @relation(fields: [id_empleado], references: [id])
+  detallesPedido DetallePedido[]
+  contratos      Contrato[]
+
+  @@map("pedido")
+}
+
+model DetallePedido {
+  id          Int      @id @default(autoincrement())
+  id_pedido   Int
+  pedido      Pedido   @relation(fields: [id_pedido], references: [id])
+  id_producto Int
+  producto    Producto @relation(fields: [id_producto], references: [id])
+  cantidad    Int
+  precio_unit Decimal  @db.Decimal(10, 2)
+  subtotal    Decimal  @db.Decimal(10, 2)
+
+  @@map("detalle_pedido")
+}
+
+model MovimientoInventario {
+  id              Int      @id @default(autoincrement())
+  tipo_movimiento String
+  cantidad        Int
+  fecha           DateTime @default(now())
+  observacion     String?
+  id_producto     Int
+  producto        Producto @relation(fields: [id_producto], references: [id])
+
+  @@map("movimiento_inventario")
+}
