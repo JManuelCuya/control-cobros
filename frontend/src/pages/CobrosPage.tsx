@@ -195,7 +195,7 @@ export const CobrosPage: React.FC = () => {
       </div>
 
       {/* Resumen Superior */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+      <div className="mobile-stack" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
         <div className="table-card" style={{ padding: '1.25rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <div style={{ width: '48px', height: '48px', borderRadius: '0.75rem', backgroundColor: '#d1fae5', color: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <DollarSign size={24} />
@@ -360,7 +360,7 @@ export const CobrosPage: React.FC = () => {
               <div style={{ fontWeight: 700, fontSize: '1.1rem', color: 'var(--accent-blue)', marginBottom: '0.75rem' }}>
                 {selectedCell.clienteNombre}
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', fontSize: '0.85rem' }}>
+              <div className="mobile-stack" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', fontSize: '0.85rem' }}>
                 <div>
                   <span style={{ color: 'var(--text-muted)' }}>DNI/RUC:</span><br/>
                   <strong>{selectedCell.clienteNumDoc}</strong>
@@ -373,7 +373,7 @@ export const CobrosPage: React.FC = () => {
             </div>
 
             <form onSubmit={handleGuardarPagoManual}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div className="mobile-stack" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 <div className="form-group">
                   <label>Estado del Mes</label>
                   <select

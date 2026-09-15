@@ -333,7 +333,7 @@ export const FacturacionPage: React.FC<FacturacionProps> = ({ onNavigate }) => {
       </div>
 
       {/* DASHBOARD DE KPIs FINANCIEROS */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+      <div className="cards-grid">
         <div className="table-card" style={{ padding: '1.5rem', display: 'flex', alignItems: 'center', gap: '1.25rem', borderLeft: '4px solid #f59e0b' }}>
           <div style={{ width: '56px', height: '56px', borderRadius: '1rem', backgroundColor: '#fef3c7', color: '#d97706', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <AlertCircle size={28} />
@@ -478,7 +478,7 @@ export const FacturacionPage: React.FC<FacturacionProps> = ({ onNavigate }) => {
               {/* Selector de Tipo Comprobante */}
               <div className="form-group">
                 <label>Tipo de Comprobante</label>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.5rem' }}>
+                <div className="mobile-stack" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.5rem' }}>
                   {(['BOLETA', 'FACTURA', 'NOTA_CREDITO', 'NOTA_DEBITO'] as const).map(tipo => (
                     <button
                       key={tipo}
@@ -500,7 +500,7 @@ export const FacturacionPage: React.FC<FacturacionProps> = ({ onNavigate }) => {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+              <div className="mobile-stack" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
                 {/* Selector de Tipo de Pago */}
                 <div className="form-group" style={{ marginBottom: 0 }}>
                   <label>Tipo de Ingreso / Origen</label>
@@ -618,7 +618,7 @@ export const FacturacionPage: React.FC<FacturacionProps> = ({ onNavigate }) => {
 
                 {/* Periodo de Cobro (si es PAGO_PLAN_MENSUAL) */}
                 {tipoPago === 'PAGO_PLAN_MENSUAL' && (
-                  <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                  <div className="mobile-stack" style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
                     <div>
                       <label>Mes del Servicio</label>
                       <select
@@ -643,7 +643,7 @@ export const FacturacionPage: React.FC<FacturacionProps> = ({ onNavigate }) => {
                   </div>
                 )}
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '1rem' }}>
+                <div className="mobile-stack" style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '1rem' }}>
                   <div className="form-group">
                     <label>Nombre del Cliente</label>
                     <input
@@ -668,7 +668,7 @@ export const FacturacionPage: React.FC<FacturacionProps> = ({ onNavigate }) => {
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '1rem' }}>
+                <div className="mobile-stack" style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '1rem' }}>
                   <div className="form-group" style={{ marginBottom: 0 }}>
                     <label>Empresa Emisora</label>
                     <input
@@ -849,7 +849,7 @@ export const FacturacionPage: React.FC<FacturacionProps> = ({ onNavigate }) => {
               </div>
 
               {/* Cabecera */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', fontSize: '0.85rem', marginBottom: '1rem' }}>
+              <div className="mobile-stack" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', fontSize: '0.85rem', marginBottom: '1rem' }}>
                 <div><strong>Cliente:</strong> {previewComp.cliente_nombre}</div>
                 <div><strong>DNI / RUC:</strong> {previewComp.cliente_num_doc}</div>
                 <div><strong>Fecha de Emisión:</strong> {new Date(previewComp.fecha_emision).toLocaleDateString()}</div>

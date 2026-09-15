@@ -395,6 +395,14 @@ body {
   -webkit-overflow-scrolling: touch;
 }
 
+/* Stats Cards Grid */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
 /* Modal Scroll on mobile */
 .modal-body {
   max-height: calc(100vh - 150px);
@@ -490,5 +498,9 @@ body {
   .form-grid {
     grid-template-columns: 1fr !important;
     gap: 0 !important;
+  }
+  
+  .mobile-stack {
+    grid-template-columns: 1fr !important;
   }
 }

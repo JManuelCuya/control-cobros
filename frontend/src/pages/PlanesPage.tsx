@@ -238,7 +238,7 @@ export const PlanesPage: React.FC = () => {
                   <Package size={16} style={{ display: 'inline', marginBottom: '-3px' }}/> 1. Selecciona los Servicios a Incluir
                 </h4>
                 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem', maxHeight: '150px', overflowY: 'auto' }}>
+                <div className="mobile-stack" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem', maxHeight: '150px', overflowY: 'auto' }}>
                   {catalogoProductos.length === 0 ? (
                     <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem', gridColumn: 'span 2' }}>
                       No hay productos en el catálogo. Registra primero productos en la sección "Catálogo".
@@ -272,7 +272,7 @@ export const PlanesPage: React.FC = () => {
                   2. Estructura de Precios
                 </h4>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', alignItems: 'flex-end' }}>
+                <div className="mobile-stack" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', alignItems: 'flex-end' }}>
                   <div className="form-group" style={{ marginBottom: 0 }}>
                     <label>Total de los Servicios</label>
                     <div style={{ padding: '0.5rem', border: '1px solid #cbd5e1', borderRadius: '0.375rem', backgroundColor: '#f1f5f9', fontWeight: 600, color: '#64748b' }}>

@@ -230,7 +230,7 @@ export const PedidosPage: React.FC = () => {
 
               <div style={{ backgroundColor: 'rgba(15,23,42,0.6)', padding: '1rem', borderRadius: '0.5rem', marginBottom: '1rem', border: '1px solid var(--border-color)' }}>
                 <h4 style={{ fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--accent-blue)' }}>Agregar Productos</h4>
-                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '0.5rem', alignItems: 'end' }}>
+                <div className="mobile-stack" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '0.5rem', alignItems: 'end' }}>
                   <div>
                     <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Producto</label>
                     <select

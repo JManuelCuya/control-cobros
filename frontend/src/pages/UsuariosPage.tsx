@@ -245,7 +245,7 @@ export const UsuariosPage: React.FC<UsuariosPageProps> = ({ currentUser }) => {
             )}
 
             <form onSubmit={handleCrearUsuario}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div className="mobile-stack" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 <div className="form-group">
                   <label>Nombre del Usuario</label>
                   <input
@@ -274,7 +274,7 @@ export const UsuariosPage: React.FC<UsuariosPageProps> = ({ currentUser }) => {
               {/* Selección de Múltiples Roles */}
               <div className="form-group">
                 <label>Roles de Permiso (Puedes marcar múltiples)</label>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', backgroundColor: '#f8fafc', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #e2e8f0' }}>
+                <div className="mobile-stack" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', backgroundColor: '#f8fafc', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #e2e8f0' }}>
                   {roles.map(r => (
                     <label key={r.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', color: '#334155' }}>
                       <input
@@ -293,7 +293,7 @@ export const UsuariosPage: React.FC<UsuariosPageProps> = ({ currentUser }) => {
                 <label style={{ fontSize: '0.85rem', fontWeight: 600, color: '#0369a1', display: 'block', marginBottom: '0.5rem' }}>
                   Vincular con Entidad (Empleado / Cliente / Proveedor)
                 </label>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                <div className="mobile-stack" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
                   <select
                     className="form-select"
                     value={personaTipo}
