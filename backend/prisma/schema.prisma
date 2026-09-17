@@ -117,6 +117,7 @@ model Departamento {
   clientes    Cliente[]
   proveedores Proveedor[]
   empleados   Empleado[]
+  suscriptores Suscriptor[]
 
   @@map("departamento")
 }
@@ -130,6 +131,7 @@ model Provincia {
   clientes        Cliente[]
   proveedores     Proveedor[]
   empleados       Empleado[]
+  suscriptores    Suscriptor[]
 
   @@map("provincia")
 }
@@ -142,6 +144,7 @@ model Distrito {
   clientes     Cliente[]
   proveedores  Proveedor[]
   empleados    Empleado[]
+  suscriptores Suscriptor[]
 
   @@map("distrito")
 }
@@ -154,6 +157,7 @@ model Sucursal {
   provincia    String?
   departamento String?
   clientes     Cliente[]
+  suscriptores Suscriptor[]
 
   @@map("sucursal")
 }
@@ -181,16 +185,20 @@ model Cliente {
   pedidos          Pedido[]
   comprobantes     Comprobante[]
   contratos        Contrato[]
+  decodificadores  Decodificador[]
+  suscriptor       Suscriptor?
 
   @@map("cliente")
 }
 
 model Contrato {
-  id                 Int      @id @default(autoincrement())
-  id_cliente         Int
-  cliente            Cliente  @relation(fields: [id_cliente], references: [id], onDelete: Cascade)
+  id                 Int         @id @default(autoincrement())
+  id_cliente         Int?
+  cliente            Cliente?    @relation(fields: [id_cliente], references: [id], onDelete: Cascade)
+  id_suscriptor      Int?
+  suscriptor         Suscriptor? @relation(fields: [id_suscriptor], references: [id], onDelete: Cascade)
   direccion_servicio String?
-  dia_cobro          Int      @default(15)
+  dia_cobro          Int         @default(15)
   id_plan            Int?
   plan               Plan?    @relation(fields: [id_plan], references: [id])
   precio_acordado    Decimal  @default(50.00) @db.Decimal(10, 2)
@@ -256,22 +264,32 @@ model DetalleComprobante {
 }
 
 model Proveedor {
-  id               Int           @id @default(autoincrement())
-  razon_social     String
-  fecha_nacimiento DateTime?
-  direccion        String?
-  id_departamento  Int?
-  id_provincia     Int?
-  id_distrito      Int?
-  telefono         String?
-  email            String?
-  correo           String?
-  tipo_doc         String?
-  num_doc          String?
+  id                    Int           @id @default(autoincrement())
+  codigo                String?
+  razon_social          String?
+  nombre                String?
+  apellido              String?
+  fecha_nacimiento      DateTime?
+  direccion             String?
+  id_departamento       Int?
+  id_provincia          Int?
+  id_distrito           Int?
+  telefono              String?
+  email                 String?
+  correo                String?
+  tipo_doc              String?
+  num_doc               String?
+  password              String?
+  fecha_final_promocion DateTime?
+  precio                Decimal       @default(0.00) @db.Decimal(10, 2)
+  id_plan               Int?
+  
+  plan             Plan?         @relation(fields: [id_plan], references: [id])
   departamento     Departamento? @relation(fields: [id_departamento], references: [id])
   provincia        Provincia?    @relation(fields: [id_provincia], references: [id])
   distrito         Distrito?     @relation(fields: [id_distrito], references: [id])
   usuarios         Usuario[]
+  decodificadores  Decodificador[]
 
   @@map("proveedor")
 }
@@ -294,6 +312,8 @@ model Plan {
   categoriaPlan       CategoriaPlan? @relation(fields: [id_categoria_plan], references: [id])
   contratos           Contrato[]
   productos           PlanProducto[]
+  proveedores         Proveedor[]
+  decodificadores     Decodificador[]
 
   @@map("planes")
 }
@@ -329,6 +349,7 @@ model Producto {
   detallesPedido        DetallePedido[]
   movimientosInventario MovimientoInventario[]
   planes                PlanProducto[]
+  decodificadores       Decodificador[]
 
   @@map("producto")
 }
@@ -371,4 +392,61 @@ model MovimientoInventario {
   producto        Producto @relation(fields: [id_producto], references: [id])
 
   @@map("movimiento_inventario")
+}
+
+model Decodificador {
+  id                Int        @id @default(autoincrement())
+  sticker           String?
+  codigo_cliente    String?
+  serial_ird        String     @unique
+  tarjeta_sc        String?
+  fecha_fabricacion DateTime?
+  costo             Decimal    @default(0.00) @db.Decimal(10, 2)
+  detalles          String?    @db.Text
+  id_plan_mensual   Int?
+  id_sucursal       Int?
+  
+  id_producto       Int?
+  id_proveedor      Int?
+  id_cliente        Int?
+  id_suscriptor     Int?
+  estado            String     @default("EN_ALMACEN") // EN_ALMACEN, ASIGNADO_A_CLIENTE, DEFECTUOSO
+  fecha_ingreso     DateTime   @default(now())
+  fecha_asignacion  DateTime?
+
+  plan              Plan?       @relation(fields: [id_plan_mensual], references: [id])
+  producto          Producto?   @relation(fields: [id_producto], references: [id])
+  proveedor         Proveedor?  @relation(fields: [id_proveedor], references: [id])
+  cliente           Cliente?    @relation(fields: [id_cliente], references: [id])
+  suscriptor        Suscriptor? @relation(fields: [id_suscriptor], references: [id])
+
+  @@map("decodificador")
+}
+
+model Suscriptor {
+  id               Int           @id @default(autoincrement())
+  codigo           String?
+  ruc_dni          String?
+  detalles         String?
+  dia_pago         Int?
+  nombre           String
+  apellido         String
+  id_departamento  Int?
+  id_provincia     Int?
+  id_distrito      Int?
+  direccion        String?
+  telefonos        String?
+  id_sucursal      Int?
+  id_cliente       Int?          @unique
+  
+  departamento     Departamento? @relation(fields: [id_departamento], references: [id])
+  provincia        Provincia?    @relation(fields: [id_provincia], references: [id])
+  distrito         Distrito?     @relation(fields: [id_distrito], references: [id])
+  sucursal         Sucursal?     @relation(fields: [id_sucursal], references: [id])
+  cliente          Cliente?      @relation(fields: [id_cliente], references: [id])
+
+  contratos        Contrato[]
+  decodificadores  Decodificador[]
+
+  @@map("suscriptor")
 }

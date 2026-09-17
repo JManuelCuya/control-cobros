@@ -12,10 +12,12 @@ import movimientosRoutes from './features/movimientos/movimientos.routes';
 import pedidosRoutes from './features/pedidos/pedidos.routes';
 import productosRoutes from './features/productos/productos.routes';
 import proveedoresRoutes from './features/proveedores/proveedores.routes';
+import suscriptoresRoutes from './features/suscriptores/suscriptores.routes';
 import planesRoutes from './features/planes/planes.routes';
 import ubigeoRoutes from './features/ubigeo/ubigeo.routes';
 import usuariosRoutes from './features/usuarios/usuarios.routes';
 import sucursalesRoutes from './features/sucursales/sucursales.routes';
+import decodificadoresRoutes from './features/decodificadores/decodificadores.routes';
 
 import { errorHandler } from './shared/middleware/error.middleware';
 
@@ -37,10 +39,12 @@ export function createServer(): Application {
   app.use('/api/pedidos', pedidosRoutes);
   app.use('/api/productos', productosRoutes);
   app.use('/api/proveedores', proveedoresRoutes);
+  app.use('/api/suscriptores', suscriptoresRoutes);
   app.use('/api/planes', planesRoutes);
   app.use('/api/ubigeo', ubigeoRoutes);
   app.use('/api/usuarios', usuariosRoutes);
   app.use('/api/sucursales', sucursalesRoutes);
+  app.use('/api/decodificadores', decodificadoresRoutes);
 
   // Endpoint de salud
   app.get('/api/health', (req, res) => {

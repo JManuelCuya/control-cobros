@@ -17,7 +17,8 @@ import {
   ShoppingCart,
   Archive,
   Settings,
-  Store
+  Store,
+  Cpu
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -55,6 +56,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       icon: Archive,
       children: [
         { id: 'productos', label: 'Productos', icon: Package },
+        { id: 'decodificadores', label: 'Decodificadores', icon: Cpu },
         { id: 'categorias', label: 'Categorías', icon: Tag },
         { id: 'planes', label: 'Planes', icon: Award },
       ]
@@ -65,6 +67,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       icon: Briefcase,
       children: [
         { id: 'clientes', label: 'Clientes', icon: Users },
+        { id: 'suscriptores', label: 'Suscriptores', icon: UserCheck },
         { id: 'empleados', label: 'Empleados', icon: UserCheck },
         { id: 'proveedores', label: 'Proveedores', icon: Truck },
       ]
@@ -82,7 +85,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   ];
 
   const vistasPermitidas: string[] = user?.vistasPermitidas || [
-    'facturacion', 'cobros', 'pedidos', 'productos', 'categorias', 'clientes', 'empleados', 'proveedores', 'planes', 'usuarios', 'sucursales'
+    'facturacion', 'cobros', 'pedidos', 'productos', 'decodificadores', 'categorias', 'clientes', 'suscriptores', 'empleados', 'proveedores', 'planes', 'usuarios', 'sucursales'
   ];
 
   const filteredItems = allMenuItems.filter(item => {

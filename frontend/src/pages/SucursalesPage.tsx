@@ -3,6 +3,7 @@ import { Plus, X, Store, Edit2, Trash2 } from 'lucide-react';
 import { sucursalesApi } from '../services/api';
 import toast from 'react-hot-toast';
 import { confirmDialog } from '../utils/confirmDialog';
+import { ubigeoApi } from '../services/api';
 
 export const SucursalesPage = () => {
   const [sucursales, setSucursales] = useState<any[]>([]);
@@ -10,6 +11,10 @@ export const SucursalesPage = () => {
   
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [departamentos, setDepartamentos] = useState<any[]>([]);
+  const [provincias, setProvincias] = useState<any[]>([]);
+  const [distritos, setDistritos] = useState<any[]>([]);
+
   const [formData, setFormData] = useState({
     descripcion: '',
     direccion: '',
@@ -32,7 +37,34 @@ export const SucursalesPage = () => {
 
   useEffect(() => {
     fetchSucursales();
+    ubigeoApi.getDepartamentos().then(setDepartamentos).catch(console.error);
   }, []);
+
+  useEffect(() => {
+    if (formData.departamento) {
+      const dep = departamentos.find(d => d.descripcion === formData.departamento);
+      if (dep) {
+        ubigeoApi.getProvincias(dep.id).then(setProvincias).catch(console.error);
+      } else {
+        setProvincias([]);
+      }
+    } else {
+      setProvincias([]);
+    }
+  }, [formData.departamento, departamentos]);
+
+  useEffect(() => {
+    if (formData.provincia) {
+      const prov = provincias.find(p => p.descripcion === formData.provincia);
+      if (prov) {
+        ubigeoApi.getDistritos(prov.id).then(setDistritos).catch(console.error);
+      } else {
+        setDistritos([]);
+      }
+    } else {
+      setDistritos([]);
+    }
+  }, [formData.provincia, provincias]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,8 +78,8 @@ export const SucursalesPage = () => {
       }
       setShowModal(false);
       fetchSucursales();
-    } catch (error) {
-      toast.error('Error al guardar sucursal');
+    } catch (error: any) {
+      toast.error(error.message || 'Error al guardar sucursal');
     }
   };
 
@@ -190,31 +222,45 @@ export const SucursalesPage = () => {
               </div>
               <div className="form-grid">
                 <div className="form-group">
-                  <label>Distrito</label>
-                  <input
-                    type="text"
+                  <label>Departamento</label>
+                  <select
                     className="form-input"
-                    value={formData.distrito}
-                    onChange={e => setFormData({...formData, distrito: e.target.value})}
-                  />
+                    value={formData.departamento}
+                    onChange={e => setFormData({...formData, departamento: e.target.value, provincia: '', distrito: ''})}
+                  >
+                    <option value="">Seleccione Departamento</option>
+                    {departamentos.map(d => (
+                      <option key={d.id} value={d.descripcion}>{d.descripcion}</option>
+                    ))}
+                  </select>
                 </div>
                 <div className="form-group">
                   <label>Provincia</label>
-                  <input
-                    type="text"
+                  <select
                     className="form-input"
                     value={formData.provincia}
-                    onChange={e => setFormData({...formData, provincia: e.target.value})}
-                  />
+                    onChange={e => setFormData({...formData, provincia: e.target.value, distrito: ''})}
+                    disabled={!formData.departamento}
+                  >
+                    <option value="">Seleccione Provincia</option>
+                    {provincias.map(p => (
+                      <option key={p.id} value={p.descripcion}>{p.descripcion}</option>
+                    ))}
+                  </select>
                 </div>
                 <div className="form-group">
-                  <label>Departamento</label>
-                  <input
-                    type="text"
+                  <label>Distrito</label>
+                  <select
                     className="form-input"
-                    value={formData.departamento}
-                    onChange={e => setFormData({...formData, departamento: e.target.value})}
-                  />
+                    value={formData.distrito}
+                    onChange={e => setFormData({...formData, distrito: e.target.value})}
+                    disabled={!formData.provincia}
+                  >
+                    <option value="">Seleccione Distrito</option>
+                    {distritos.map(d => (
+                      <option key={d.id} value={d.descripcion}>{d.descripcion}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
               <div className="modal-footer">

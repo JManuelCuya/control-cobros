@@ -92,6 +92,7 @@ export const empleadosApi = {
 export const contratosApi = {
   getAll: () => request<any[]>('/contratos'),
   getByCliente: (idCliente: number) => request<any[]>(`/contratos/cliente/${idCliente}`),
+  getBySuscriptor: (idSuscriptor: number) => request<any[]>(`/contratos/suscriptor/${idSuscriptor}`),
   create: (data: any) => request<any>('/contratos', { method: 'POST', body: JSON.stringify(data) }),
   update: (id: number, data: any) => request<any>(`/contratos/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   delete: (id: number) => request<any>(`/contratos/${id}`, { method: 'DELETE' }),
@@ -143,3 +144,30 @@ export const sucursalesApi = {
   update: (id: number, data: any) => request<any>(`/sucursales/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   delete: (id: number) => request<any>(`/sucursales/${id}`, { method: 'DELETE' }),
 };
+
+// 12. Ubigeo API
+export const ubigeoApi = {
+  getDepartamentos: () => request<any[]>('/ubigeo/departamentos'),
+  getProvincias: (idDepartamento: number) => request<any[]>(`/ubigeo/provincias/${idDepartamento}`),
+  getDistritos: (idProvincia: number) => request<any[]>(`/ubigeo/distritos/${idProvincia}`),
+};
+
+// 13. Decodificadores API
+export const decodificadoresApi = {
+  getAll: () => request<any[]>('/decodificadores'),
+  create: (data: any) => request<any>('/decodificadores', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id: number, data: any) => request<any>(`/decodificadores/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  asignar: (id: number, targetId: number | null, type: 'cliente' | 'suscriptor' = 'cliente', fecha_asignacion?: string) => request<any>(`/decodificadores/${id}/asignar`, { method: 'PATCH', body: JSON.stringify({ ...(type === 'cliente' ? { id_cliente: targetId } : { id_suscriptor: targetId }), fecha_asignacion }) }),
+  delete: (id: number) => request<any>(`/decodificadores/${id}`, { method: 'DELETE' }),
+};
+
+// 14. Suscriptores API
+export const suscriptoresApi = {
+  getAll: () => request<any[]>('/suscriptores'),
+  getById: (id: number) => request<any>(`/suscriptores/${id}`),
+  create: (data: any) => request<any>('/suscriptores', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id: number, data: any) => request<any>(`/suscriptores/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: (id: number) => request<any>(`/suscriptores/${id}`, { method: 'DELETE' }),
+};
+
+

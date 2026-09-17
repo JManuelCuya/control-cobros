@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Receipt, PlusCircle, Eye, Printer, X, Trash2, CheckCircle2, DollarSign, AlertCircle, CheckCircle } from 'lucide-react';
-import { facturacionApi, clientesApi, contratosApi, productosApi, pedidosApi } from '../services/api';
+import { facturacionApi, clientesApi, contratosApi, productosApi, pedidosApi, suscriptoresApi } from '../services/api';
 import toast from 'react-hot-toast';
 import { confirmDialog } from '../utils/confirmDialog';
 
@@ -31,7 +31,7 @@ interface FacturacionProps {
   onNavigate?: (tab: string) => void;
 }
 
-const SearchableSelect = ({ options, value, onChange, placeholder }: { options: {id: number, label: string}[], value: number | '', onChange: (id: number) => void, placeholder: string }) => {
+const SearchableSelect = ({ options, value, onChange, placeholder }: { options: {id: any, label: string}[], value: any, onChange: (id: any) => void, placeholder: string }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
   
@@ -75,6 +75,7 @@ const SearchableSelect = ({ options, value, onChange, placeholder }: { options: 
 export const FacturacionPage: React.FC<FacturacionProps> = ({ onNavigate }) => {
   const [comprobantes, setComprobantes] = useState<Comprobante[]>([]);
   const [clientes, setClientes] = useState<any[]>([]);
+  const [suscriptores, setSuscriptores] = useState<any[]>([]);
   const [productosCat, setProductosCat] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -111,14 +112,16 @@ export const FacturacionPage: React.FC<FacturacionProps> = ({ onNavigate }) => {
   const cargarDatos = async () => {
     try {
       setLoading(true);
-      const [comps, clis, prods] = await Promise.all([
+      const [comps, clis, prods, suscs] = await Promise.all([
         facturacionApi.getAll(),
         clientesApi.getAll().catch(() => []),
-        productosApi.getAll().catch(() => [])
+        productosApi.getAll().catch(() => []),
+        suscriptoresApi.getAll().catch(() => [])
       ]);
       setComprobantes(comps);
       setClientes(clis);
       setProductosCat(prods);
+      setSuscriptores(suscs);
     } catch (err) {
       console.error('Error al cargar comprobantes:', err);
     } finally {
@@ -181,28 +184,43 @@ export const FacturacionPage: React.FC<FacturacionProps> = ({ onNavigate }) => {
       setClienteNumDoc('');
       return;
     }
-    const cli = clientes.find(c => c.id === Number(idStr));
-    if (cli) {
-      setClienteNombre(`${cli.nombre} ${cli.apellido}`);
-      setClienteNumDoc(cli.num_doc || '00000000');
 
-      // Cargar sus contratos activos
-      try {
-        const contratos = await contratosApi.getByCliente(cli.id);
-        setClienteContratos(contratos);
-        if (contratos.length > 0 && tipoPago === 'PAGO_PLAN_MENSUAL') {
-          handleSelectContrato(String(contratos[0].id), contratos);
-        }
-      } catch (err) {
-        console.error(err);
+    const isSuscriptor = idStr.startsWith('S-');
+    const realId = Number(idStr.replace('C-', '').replace('S-', ''));
+
+    if (isSuscriptor) {
+      const sus = suscriptores.find(s => s.id === realId);
+      if (sus) {
+        setClienteNombre(`${sus.nombre} ${sus.apellido}`);
+        setClienteNumDoc(sus.ruc_dni || '00000000');
+        try {
+          const contratos = await contratosApi.getBySuscriptor(sus.id);
+          setClienteContratos(contratos);
+          if (contratos.length > 0 && tipoPago === 'PAGO_PLAN_MENSUAL') {
+            handleSelectContrato(String(contratos[0].id), contratos);
+          }
+        } catch (err) {}
       }
+    } else {
+      const cli = clientes.find(c => c.id === realId);
+      if (cli) {
+        setClienteNombre(`${cli.nombre} ${cli.apellido}`);
+        setClienteNumDoc(cli.num_doc || '00000000');
 
-      // Cargar sus pedidos pendientes
-      try {
-        const allPedidos = await pedidosApi.getAll();
-        const cPedidos = allPedidos.filter((p: any) => p.id_cliente === cli.id && p.estado === 'PENDIENTE');
-        setClientePedidos(cPedidos);
-      } catch(err) {}
+        try {
+          const contratos = await contratosApi.getByCliente(cli.id);
+          setClienteContratos(contratos);
+          if (contratos.length > 0 && tipoPago === 'PAGO_PLAN_MENSUAL') {
+            handleSelectContrato(String(contratos[0].id), contratos);
+          }
+        } catch (err) {}
+
+        try {
+          const allPedidos = await pedidosApi.getAll();
+          const cPedidos = allPedidos.filter((p: any) => p.id_cliente === cli.id && p.estado === 'PENDIENTE');
+          setClientePedidos(cPedidos);
+        } catch(err) {}
+      }
     }
   };
 
@@ -274,7 +292,7 @@ export const FacturacionPage: React.FC<FacturacionProps> = ({ onNavigate }) => {
         tipo_pago: tipoPago,
         periodo_mes: tipoPago === 'PAGO_PLAN_MENSUAL' ? periodoMes : undefined,
         periodo_anio: tipoPago === 'PAGO_PLAN_MENSUAL' ? periodoAnio : undefined,
-        id_cliente: selectedClienteId ? Number(selectedClienteId) : undefined,
+        id_cliente: selectedClienteId && selectedClienteId.startsWith('C-') ? Number(selectedClienteId.replace('C-', '')) : undefined,
         id_contrato: selectedContratoId && tipoPago === 'PAGO_PLAN_MENSUAL' ? Number(selectedContratoId) : undefined,
         cliente_nombre: clienteNombre.trim(),
         cliente_num_doc: clienteNumDoc.trim(),
@@ -441,7 +459,7 @@ export const FacturacionPage: React.FC<FacturacionProps> = ({ onNavigate }) => {
                           style={{ padding: '0.4rem', fontSize: '0.75rem', backgroundColor: '#475569' }}
                           onClick={() => setPreviewComp(c)}
                         >
-                          <Eye size={14} /> Ver
+                          <Eye size={14} />
                         </button>
                         {c.estado_pago === 'POR_PAGAR' && c.estado !== 'ANULADO' && (
                           <button 
@@ -538,18 +556,27 @@ export const FacturacionPage: React.FC<FacturacionProps> = ({ onNavigate }) => {
                 </h4>
 
                 <div className="form-group">
-                  <label>Seleccionar Cliente Registrado</label>
+                  <label>Seleccionar Cliente / Suscriptor Registrado</label>
                   <select
                     className="form-select"
                     value={selectedClienteId}
                     onChange={(e) => handleSelectCliente(e.target.value)}
                   >
                     <option value="">-- Cliente Eventual / Manual --</option>
-                    {clientes.map(c => (
-                      <option key={c.id} value={c.id}>
-                        {c.nombre} {c.apellido} - DNI/RUC: {c.num_doc || 'Sin Doc'}
-                      </option>
-                    ))}
+                    <optgroup label="Clientes">
+                      {clientes.map(c => (
+                        <option key={`C-${c.id}`} value={`C-${c.id}`}>
+                          {c.nombre} {c.apellido} - DNI/RUC: {c.num_doc || 'Sin Doc'}
+                        </option>
+                      ))}
+                    </optgroup>
+                    <optgroup label="Suscriptores (Sin cuenta Cliente)">
+                      {suscriptores.map(s => (
+                        <option key={`S-${s.id}`} value={`S-${s.id}`}>
+                          {s.nombre} {s.apellido} - DNI: {s.ruc_dni || 'Sin Doc'}
+                        </option>
+                      ))}
+                    </optgroup>
                   </select>
                 </div>
 

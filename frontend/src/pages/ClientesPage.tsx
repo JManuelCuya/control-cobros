@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PlusCircle, Edit2, Trash2, X, Search, FileText } from 'lucide-react';
-import { clientesApi, contratosApi, planesApi, pedidosApi, sucursalesApi } from '../services/api';
+import { clientesApi, contratosApi, planesApi, pedidosApi, sucursalesApi, decodificadoresApi, suscriptoresApi, ubigeoApi } from '../services/api';
 import toast from 'react-hot-toast';
 import { confirmDialog } from '../utils/confirmDialog';
 
@@ -39,6 +39,9 @@ export const ClientesPage: React.FC = () => {
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [planes, setPlanes] = useState<Plan[]>([]);
   const [sucursales, setSucursales] = useState<any[]>([]);
+  const [departamentos, setDepartamentos] = useState<any[]>([]);
+  const [provincias, setProvincias] = useState<any[]>([]);
+  const [distritos, setDistritos] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -49,14 +52,32 @@ export const ClientesPage: React.FC = () => {
   const [selectedCliente, setSelectedCliente] = useState<Cliente | null>(null);
   const [contratos, setContratos] = useState<Contrato[]>([]);
   const [pedidosCliente, setPedidosCliente] = useState<any[]>([]);
+  const [equiposCliente, setEquiposCliente] = useState<any[]>([]);
+  const [disponibles, setDisponibles] = useState<any[]>([]);
   
   const [showContratoForm, setShowContratoForm] = useState(false);
   const [contratoFormData, setContratoFormData] = useState({
     direccion_servicio: '',
-    dia_cobro: 15,
     id_plan: '',
+    dia_cobro: '15',
     id_pedido: '',
-    precio_acordado: 50.00
+    precio_acordado: 50.00,
+    fecha_inicio: new Date().toISOString().split('T')[0]
+  });
+
+  const [isConvertModalOpen, setIsConvertModalOpen] = useState(false);
+  const [convertFormData, setConvertFormData] = useState({
+    ruc_dni: '',
+    detalles: '',
+    dia_pago: '',
+    nombre: '',
+    apellido: '',
+    id_departamento: '',
+    id_distrito: '',
+    direccion: '',
+    telefonos: '',
+    id_sucursal: '',
+    id_cliente: ''
   });
 
   const [formData, setFormData] = useState({
@@ -102,7 +123,36 @@ export const ClientesPage: React.FC = () => {
       console.error('Error al cargar sucursales:', err);
     }
   };
-useEffect(() => {
+
+  const cargarDepartamentos = async () => {
+    try {
+      const data = await ubigeoApi.getDepartamentos();
+      setDepartamentos(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const cargarProvincias = async (idDep: number) => {
+    try {
+      const data = await ubigeoApi.getProvincias(idDep);
+      setProvincias(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const cargarDistritos = async (idProv: number) => {
+    try {
+      const data = await ubigeoApi.getDistritos(idProv);
+      setDistritos(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    cargarDepartamentos();
     cargarSucursales();
     cargarClientes().then((data) => {
       const autoOpenId = localStorage.getItem('autoOpenContratosCliente');
@@ -188,6 +238,17 @@ useEffect(() => {
     setShowContratoForm(false);
     cargarContratosCliente(cliente.id);
     cargarPedidosCliente(cliente.id);
+    cargarEquiposCliente(cliente.id);
+  };
+
+  const cargarEquiposCliente = async (id_cliente: number) => {
+    try {
+      const allEquipos = await decodificadoresApi.getAll();
+      setEquiposCliente(allEquipos.filter((e: any) => e.id_cliente === id_cliente));
+      setDisponibles(allEquipos.filter((e: any) => e.estado === 'EN_ALMACEN'));
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const cargarPedidosCliente = async (id_cliente: number) => {
@@ -228,13 +289,24 @@ useEffect(() => {
         dia_cobro: Number(contratoFormData.dia_cobro),
         id_plan: Number(contratoFormData.id_plan),
         precio_acordado: Number(contratoFormData.precio_acordado),
-        id_pedido: contratoFormData.id_pedido ? Number(contratoFormData.id_pedido) : undefined
+        id_pedido: contratoFormData.id_pedido ? Number(contratoFormData.id_pedido) : undefined,
+        fecha_inicio: contratoFormData.fecha_inicio
       });
       setShowContratoForm(false);
       toast.success('Contrato creado con éxito');
       await cargarContratosCliente(selectedCliente.id);
     } catch (err: any) {
       toast.error(err.message || 'Error al crear contrato');
+    }
+  };
+
+  const actualizarFechaInicioContrato = async (idContrato: number, nuevaFecha: string) => {
+    try {
+      await contratosApi.update(idContrato, { fecha_inicio: nuevaFecha });
+      toast.success('Fecha de inicio de suscripción actualizada');
+      if (selectedCliente) cargarContratosCliente(selectedCliente.id);
+    } catch (err: any) {
+      toast.error('Error al actualizar fecha de inicio');
     }
   };
 
@@ -246,6 +318,88 @@ useEffect(() => {
       if (selectedCliente) cargarContratosCliente(selectedCliente.id);
     } catch (err: any) {
       toast.error(err.message || 'Error al eliminar');
+    }
+  };
+
+  const asignarEquipoACliente = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const idEquipo = Number(e.target.value);
+    if (!idEquipo || !selectedCliente) return;
+    try {
+      const fechaHoy = new Date().toISOString().split('T')[0];
+      await decodificadoresApi.asignar(idEquipo, null, 'cliente', fechaHoy, selectedCliente.id);
+      toast.success('Equipo asignado correctamente');
+      cargarEquiposCliente(selectedCliente.id);
+      cargarContratosCliente(selectedCliente.id);
+      e.target.value = ''; // Reset select
+    } catch (err: any) {
+      toast.error('Error al asignar equipo');
+    }
+  };
+
+  const actualizarFechaAsignacionEquipo = async (idEquipo: number, nuevaFecha: string) => {
+    try {
+      await decodificadoresApi.update(idEquipo, { fecha_asignacion: nuevaFecha });
+      toast.success('Fecha de instalación actualizada');
+      if (selectedCliente) cargarEquiposCliente(selectedCliente.id);
+    } catch (err: any) {
+      toast.error('Error al actualizar fecha');
+    }
+  };
+
+  const desvincularEquipo = async (idEquipo: number) => {
+    if(!confirm('¿Desvincular este equipo y devolver a almacén?')) return;
+    try {
+      await decodificadoresApi.asignar(idEquipo, null);
+      toast.success('Equipo devuelto a almacén');
+      if (selectedCliente) {
+        cargarEquiposCliente(selectedCliente.id);
+        cargarContratosCliente(selectedCliente.id);
+      }
+    } catch (err: any) {
+      toast.error('Error al desvincular');
+    }
+  };
+
+  const openConvertModal = (c: Cliente) => {
+    setSelectedCliente(c);
+    setConvertFormData({
+      ruc_dni: c.num_doc || '',
+      detalles: '',
+      dia_pago: '15',
+      nombre: c.nombre || '',
+      apellido: c.apellido || '',
+      id_departamento: c.id_departamento ? String(c.id_departamento) : '',
+      id_provincia: c.id_provincia ? String(c.id_provincia) : '',
+      id_distrito: c.id_distrito ? String(c.id_distrito) : '',
+      direccion: c.direccion || '',
+      telefonos: c.telefono || '',
+      id_sucursal: c.id_sucursal ? String(c.id_sucursal) : '',
+      id_cliente: String(c.id)
+    });
+    
+    if (c.id_departamento) cargarProvincias(c.id_departamento);
+    if (c.id_provincia) cargarDistritos(c.id_provincia);
+
+    setIsConvertModalOpen(true);
+  };
+
+  const handleConvertSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const payload = { 
+        ...convertFormData,
+        id_sucursal: convertFormData.id_sucursal ? Number(convertFormData.id_sucursal) : undefined,
+        id_departamento: convertFormData.id_departamento ? Number(convertFormData.id_departamento) : undefined,
+        id_provincia: convertFormData.id_provincia ? Number(convertFormData.id_provincia) : undefined,
+        id_distrito: convertFormData.id_distrito ? Number(convertFormData.id_distrito) : undefined,
+        dia_pago: convertFormData.dia_pago ? Number(convertFormData.dia_pago) : undefined
+      };
+      await suscriptoresApi.create(payload);
+      toast.success('Convertido a Suscriptor exitosamente');
+      setIsConvertModalOpen(false);
+      // Optional: Maybe refresh the list or show a link
+    } catch (err: any) {
+      toast.error(err.message || 'Error al convertir a suscriptor');
     }
   };
 
@@ -302,19 +456,28 @@ useEffect(() => {
                       ) : '-'}
                     </td>
                     <td>{c.direccion || '-'}</td>
-                    <td style={{ display: 'flex', gap: '0.5rem' }}>
+                    <td style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                      <button 
+                        className="btn-primary" 
+                        style={{ padding: '0.4rem', fontSize: '0.75rem', backgroundColor: '#10b981' }}
+                        onClick={() => openConvertModal(c)}
+                        title="Convertir a Suscriptor"
+                      >
+                        <PlusCircle size={14} />
+                      </button>
                       <button 
                         className="btn-primary" 
                         style={{ padding: '0.4rem', fontSize: '0.75rem', backgroundColor: '#0284c7' }}
                         onClick={() => openContratosModal(c)}
                         title="Gestionar planes de cable"
                       >
-                        <FileText size={14} /> Servicios
+                        <FileText size={14} />
                       </button>
                       <button 
-                        className="btn-primary" 
+                        className="btn-primary"  
                         style={{ padding: '0.4rem', fontSize: '0.75rem', backgroundColor: '#475569' }}
                         onClick={() => openEditModal(c)}
+                        title="Editar"
                       >
                         <Edit2 size={14} />
                       </button>
@@ -322,6 +485,7 @@ useEffect(() => {
                         className="btn-danger" 
                         style={{ padding: '0.4rem', fontSize: '0.75rem' }}
                         onClick={() => handleEliminar(c.id)}
+                        title="Eliminar"
                       >
                         <Trash2 size={14} />
                       </button>
@@ -414,18 +578,33 @@ useEffect(() => {
                 </div>
               </div>
 
-              <div className="form-group">
-                <label>Dirección</label>
-                <input
-                  type="text"
-                  className="form-input"
-                  value={formData.direccion}
-                  onChange={(e) => setFormData({ ...formData, direccion: e.target.value })}
-                />
+              <div className="mobile-stack" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div className="form-group">
+                  <label>Dirección</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={formData.direccion}
+                    onChange={(e) => setFormData({ ...formData, direccion: e.target.value })}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Sucursal</label>
+                  <select
+                    className="form-select"
+                    value={formData.id_sucursal}
+                    onChange={(e) => setFormData({ ...formData, id_sucursal: e.target.value })}
+                  >
+                    <option value="">-- Sin Sucursal --</option>
+                    {sucursales.map(s => (
+                      <option key={s.id} value={s.id}>{s.descripcion}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1.5rem' }}>
-                <button type="button" className="btn-danger" onClick={() => setIsModalOpen(false)}>
+                <button type="button" className="btn-secondary" onClick={() => setIsModalOpen(false)}>
                   Cancelar
                 </button>
                 <button type="submit" className="btn-primary">
@@ -446,7 +625,7 @@ useEffect(() => {
                 <h3 style={{ marginBottom: '0.25rem' }}><FileText size={20} style={{ display: 'inline', marginRight: '8px' }} /> Suscripciones y Servicios</h3>
                 <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Cliente: {selectedCliente.nombre} {selectedCliente.apellido}</p>
               </div>
-              <button className="close-btn" onClick={() => setIsContratosModalOpen(false)}>
+              <button className="close-btn" onClick={() => { setIsContratosModalOpen(false); fetchData(); }}>
                 <X size={20} />
               </button>
             </div>
@@ -460,11 +639,12 @@ useEffect(() => {
                       dia_cobro: 15,
                       id_plan: planes.length > 0 ? String(planes[0].id) : '',
                       id_pedido: '',
-                      precio_acordado: planes.length > 0 ? Number(planes[0].precio) : 50.00
+                      precio_acordado: planes.length > 0 ? Number(planes[0].precio) : 50.00,
+                      fecha_inicio: new Date().toISOString().split('T')[0]
                     });
                     setShowContratoForm(true);
                   }}>
-                    <PlusCircle size={16} /> Agregar Nueva Instalación / Contrato
+                    <PlusCircle size={16} /> Agregar Nueva Suscripción
                   </button>
                 </div>
 
@@ -475,17 +655,18 @@ useEffect(() => {
                       <tr>
                         <th>N°</th>
                         <th>Dirección de Instalación</th>
-                        <th>Plan</th>
-                        <th>Día de Pago</th>
-                        <th>Monto (S/)</th>
-                        <th>Estado</th>
-                        <th>Acción</th>
+                          <th>Plan</th>
+                          <th>Día de Pago</th>
+                          <th>Monto (S/)</th>
+                          <th>F. Inicio</th>
+                          <th>Estado</th>
+                          <th>Acción</th>
                       </tr>
                     </thead>
                     <tbody>
                       {contratos.length === 0 ? (
                         <tr>
-                          <td colSpan={7} style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
+                          <td colSpan={8} style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
                             Este cliente no tiene ningún servicio contratado aún.
                           </td>
                         </tr>
@@ -497,6 +678,20 @@ useEffect(() => {
                             <td style={{ fontWeight: 600 }}>{c.plan?.descripcion || 'Sin Plan'}</td>
                             <td style={{ color: '#0284c7', fontWeight: 800 }}>Día {c.dia_cobro}</td>
                             <td>S/ {Number(c.precio_acordado).toFixed(2)}</td>
+                            <td>
+                              <input 
+                                type="date" 
+                                className="form-input" 
+                                style={{ padding: '0.2rem', fontSize: '0.8rem', width: '120px' }}
+                                defaultValue={c.fecha_inicio ? new Date(c.fecha_inicio).toISOString().split('T')[0] : ''}
+                                onBlur={(e) => {
+                                  const oldVal = c.fecha_inicio ? new Date(c.fecha_inicio).toISOString().split('T')[0] : '';
+                                  if (e.target.value !== oldVal) {
+                                    actualizarFechaInicioContrato(c.id, e.target.value);
+                                  }
+                                }}
+                              />
+                            </td>
                             <td><span className="badge badge-success">{c.estado}</span></td>
                             <td>
                               <button className="btn-danger" style={{ padding: '0.2rem 0.4rem' }} onClick={() => eliminarContrato(c.id)}>
@@ -510,20 +705,96 @@ useEffect(() => {
                   </table>
               </div>
                 </div>
+
+                <div style={{ marginTop: '2rem' }}>
+                  <h4 style={{ marginBottom: '1rem', color: 'var(--text-main)', display: 'flex', justifyContent: 'space-between' }}>
+                    Equipos Instalados (MAC / Serie / IRD)
+                    <select className="form-select" style={{ width: '300px', fontSize: '0.85rem', padding: '0.4rem' }} onChange={asignarEquipoACliente} defaultValue="">
+                      <option value="" disabled>+ Asignar equipo del almacén</option>
+                      {disponibles.map(eq => (
+                        <option key={eq.id} value={eq.id}>{eq.serial_ird} ({eq.sticker || 'Sin sticker'})</option>
+                      ))}
+                    </select>
+                  </h4>
+                  <div className="table-card" style={{ marginBottom: 0 }}>
+                    <div className="table-responsive">
+                      <table className="data-table">
+                        <thead>
+                          <tr>
+                            <th>N° Serie / IRD</th>
+                            <th>Sticker</th>
+                            <th>Proveedor</th>
+                            <th>F. Instalación</th>
+                            <th>Estado</th>
+                            <th>Acción</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {equiposCliente.length === 0 ? (
+                            <tr>
+                              <td colSpan={5} style={{ textAlign: 'center', padding: '1rem', color: 'var(--text-muted)' }}>No tiene equipos instalados</td>
+                            </tr>
+                          ) : (
+                            equiposCliente.map(eq => (
+                              <tr key={eq.id}>
+                                <td style={{ fontWeight: 600, color: 'var(--accent-blue)' }}>{eq.serial_ird}</td>
+                                <td>{eq.sticker || '-'}</td>
+                                <td>{eq.proveedor?.razon_social || '-'}</td>
+                                <td>
+                                  <input 
+                                    type="date" 
+                                    className="form-input" 
+                                    style={{ padding: '0.2rem', fontSize: '0.8rem', width: '120px' }}
+                                    defaultValue={eq.fecha_asignacion ? new Date(eq.fecha_asignacion).toISOString().split('T')[0] : ''}
+                                    onBlur={(e) => {
+                                      const oldVal = eq.fecha_asignacion ? new Date(eq.fecha_asignacion).toISOString().split('T')[0] : '';
+                                      if (e.target.value !== oldVal) {
+                                        actualizarFechaAsignacionEquipo(eq.id, e.target.value);
+                                      }
+                                    }}
+                                  />
+                                </td>
+                                <td><span className="badge badge-success">{eq.estado.replace(/_/g, ' ')}</span></td>
+                                <td>
+                                  <button className="btn-secondary" style={{ padding: '0.4rem', fontSize: '0.75rem' }} onClick={() => desvincularEquipo(eq.id)} title="Desvincular">
+                                    <X size={14} />
+                                  </button>
+                                </td>
+                              </tr>
+                            ))
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
               </>
             ) : (
               <form onSubmit={submitContrato} style={{ backgroundColor: '#f8fafc', padding: '1rem', borderRadius: '0.5rem', border: '1px solid #e2e8f0' }}>
-                <h4 style={{ marginBottom: '1rem', color: 'var(--accent-blue)' }}>Registrar Nuevo Contrato de Cable</h4>
+                <h4 style={{ marginBottom: '1rem', color: 'var(--accent-blue)' }}>Registrar Nueva Suscripción</h4>
                 
-                <div className="form-group">
-                  <label>Dirección de la Instalación (Sede / Domicilio)</label>
-                  <input
-                    type="text"
-                    required
-                    className="form-input"
-                    value={contratoFormData.direccion_servicio}
-                    onChange={(e) => setContratoFormData({ ...contratoFormData, direccion_servicio: e.target.value })}
-                  />
+                <div className="mobile-stack" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                  <div className="form-group">
+                    <label>Dirección de la Instalación (Sede / Domicilio)</label>
+                    <input
+                      type="text"
+                      required
+                      className="form-input"
+                      value={contratoFormData.direccion_servicio}
+                      onChange={(e) => setContratoFormData({ ...contratoFormData, direccion_servicio: e.target.value })}
+                    />
+                  </div>
+                  
+                  <div className="form-group">
+                    <label>Fecha de Inicio (Control de Cobros)</label>
+                    <input
+                      type="date"
+                      required
+                      className="form-input"
+                      value={contratoFormData.fecha_inicio}
+                      onChange={(e) => setContratoFormData({ ...contratoFormData, fecha_inicio: e.target.value })}
+                    />
+                  </div>
                 </div>
 
                 <div className="mobile-stack" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '1rem' }}>
@@ -591,6 +862,131 @@ useEffect(() => {
                 </div>
               </form>
             )}
+          </div>
+        </div>
+      )}
+      {/* MODAL CONVERTIR A SUSCRIPTOR */}
+      {isConvertModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content" style={{ maxWidth: '800px' }}>
+            <div className="modal-header">
+              <h3>Convertir a Suscriptor</h3>
+              <button className="close-btn" onClick={() => setIsConvertModalOpen(false)}>
+                <X size={20} />
+              </button>
+            </div>
+            <form onSubmit={handleConvertSubmit}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                <div className="form-group">
+                  <label>Código*</label>
+                  <input type="text" disabled className="form-input" placeholder="(Se autogenerará)" />
+                </div>
+                <div className="form-group">
+                  <label>RUC/DNI*</label>
+                  <input type="text" required className="form-input" value={convertFormData.ruc_dni} onChange={e => setConvertFormData({...convertFormData, ruc_dni: e.target.value})} />
+                </div>
+              </div>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                <div className="form-group">
+                  <label>Detalles</label>
+                  <input type="text" className="form-input" value={convertFormData.detalles} onChange={e => setConvertFormData({...convertFormData, detalles: e.target.value})} />
+                </div>
+                <div className="form-group">
+                  <label>Día de Pago</label>
+                  <input type="number" min="1" max="31" required className="form-input" value={convertFormData.dia_pago} onChange={e => setConvertFormData({...convertFormData, dia_pago: e.target.value})} />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                <div className="form-group">
+                  <label>Nombres*</label>
+                  <input type="text" required className="form-input" value={convertFormData.nombre} onChange={e => setConvertFormData({...convertFormData, nombre: e.target.value})} />
+                </div>
+                <div className="form-group">
+                  <label>Apellidos*</label>
+                  <input type="text" required className="form-input" value={convertFormData.apellido} onChange={e => setConvertFormData({...convertFormData, apellido: e.target.value})} />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                <div className="form-group">
+                  <label>Departamento</label>
+                  <select 
+                    className="form-select" 
+                    value={convertFormData.id_departamento} 
+                    onChange={e => {
+                      setConvertFormData({...convertFormData, id_departamento: e.target.value, id_provincia: '', id_distrito: ''});
+                      if (e.target.value) cargarProvincias(Number(e.target.value));
+                      else setProvincias([]);
+                    }}
+                  >
+                    <option value="">--Seleccionar--</option>
+                    {departamentos.map(d => (
+                      <option key={d.id} value={d.id}>{d.descripcion}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Provincia</label>
+                  <select 
+                    className="form-select" 
+                    value={convertFormData.id_provincia} 
+                    onChange={e => {
+                      setConvertFormData({...convertFormData, id_provincia: e.target.value, id_distrito: ''});
+                      if (e.target.value) cargarDistritos(Number(e.target.value));
+                      else setDistritos([]);
+                    }}
+                    disabled={!convertFormData.id_departamento}
+                  >
+                    <option value="">--Seleccionar--</option>
+                    {provincias.map(p => (
+                      <option key={p.id} value={p.id}>{p.descripcion}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Distrito</label>
+                  <select 
+                    className="form-select" 
+                    value={convertFormData.id_distrito} 
+                    onChange={e => setConvertFormData({...convertFormData, id_distrito: e.target.value})}
+                    disabled={!convertFormData.id_provincia}
+                  >
+                    <option value="">--Seleccionar--</option>
+                    {distritos.map(d => (
+                      <option key={d.id} value={d.id}>{d.descripcion}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                <div className="form-group">
+                  <label>Dirección*</label>
+                  <input type="text" required className="form-input" value={convertFormData.direccion} onChange={e => setConvertFormData({...convertFormData, direccion: e.target.value})} />
+                </div>
+                <div className="form-group">
+                  <label>Teléfonos*</label>
+                  <input type="text" required className="form-input" value={convertFormData.telefonos} onChange={e => setConvertFormData({...convertFormData, telefonos: e.target.value})} />
+                </div>
+              </div>
+
+              <div className="form-group" style={{ marginBottom: '1rem' }}>
+                <label>Asignar a (Sucursal)*</label>
+                <select className="form-select" required value={convertFormData.id_sucursal} onChange={e => setConvertFormData({...convertFormData, id_sucursal: e.target.value})}>
+                  <option value="">--SELECCIONAR--</option>
+                  {sucursales.map(s => (
+                    <option key={s.id} value={s.id}>{s.descripcion}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1.5rem' }}>
+                <button type="button" className="btn-secondary" onClick={() => setIsConvertModalOpen(false)}>Cancelar</button>
+                <button type="submit" className="btn-primary" style={{ backgroundColor: '#10b981' }}>Agregar Suscriptor</button>
+              </div>
+            </form>
           </div>
         </div>
       )}

@@ -7,6 +7,7 @@ export class CobrosService {
       where: { estado: 'ACTIVO' },
       include: {
         cliente: true,
+        suscriptor: true,
         plan: true
       },
       orderBy: { id: 'asc' }
@@ -27,17 +28,22 @@ export class CobrosService {
       for (let m = 1; m <= 12; m++) {
         meses[m] = cobrosMap[`${contrato.id}_${m}`] || null;
       }
+      
+      const entity = contrato.suscriptor || contrato.cliente || ({} as any);
+
       return {
         id_contrato: contrato.id,
-        id_cliente: contrato.cliente.id,
-        nombre: contrato.cliente.nombre,
-        apellido: contrato.cliente.apellido,
-        num_doc: contrato.cliente.num_doc,
-        telefono: contrato.cliente.telefono,
+        id_cliente: contrato.id_cliente || (contrato.suscriptor ? contrato.suscriptor.id_cliente : null) || null,
+        nombre: entity.nombre || '',
+        apellido: entity.apellido || '',
+        num_doc: entity.num_doc || entity.ruc_dni || '',
+        codigo_pago: entity.codigo || `C-${contrato.id}`,
+        telefono: entity.telefono || entity.telefonos || '',
         plan_desc: contrato.plan ? contrato.plan.descripcion : 'Sin Plan',
-        direccion_servicio: contrato.direccion_servicio || contrato.cliente.direccion,
-        dia_cobro: contrato.dia_cobro,
+        direccion_servicio: contrato.direccion_servicio || entity.direccion || '',
+        dia_cobro: contrato.suscriptor ? contrato.suscriptor.dia_pago : contrato.dia_cobro,
         precio_acordado: contrato.precio_acordado,
+        fecha_inicio: contrato.fecha_inicio,
         meses
       };
     });

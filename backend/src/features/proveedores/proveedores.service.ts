@@ -15,6 +15,9 @@ export class ProveedoresService {
   }
 
   async crear(data: any) {
+    if (!data.codigo) {
+      data.codigo = Math.floor(10000000 + Math.random() * 90000000).toString();
+    }
     return prisma.proveedor.create({ data });
   }
 

@@ -14,11 +14,13 @@ interface MatrizContrato {
   nombre: string;
   apellido: string;
   num_doc?: string;
+  codigo_pago?: string;
   telefono?: string;
   plan_desc?: string;
   direccion_servicio: string;
   dia_cobro: number;
   precio_acordado: number;
+  fecha_inicio?: string;
   meses: Record<number, any>; // 1..12
 }
 
@@ -43,6 +45,13 @@ export const CobrosPage: React.FC = () => {
   const [modalEstado, setModalEstado] = useState<'PAGADO' | 'DEUDA' | 'VACIO'>('PAGADO');
   const [modalMonto, setModalMonto] = useState<string>('50.00');
   const [modalObs, setModalObs] = useState<string>('');
+
+  // Modal para Detalle de Deuda Total
+  const [selectedDeudaDetalle, setSelectedDeudaDetalle] = useState<{
+    contrato: MatrizContrato;
+    mesesDeuda: { mes: number; nombre: string; monto: number; observacion?: string }[];
+    total: number;
+  } | null>(null);
 
   const cargarMatriz = async () => {
     try {
@@ -280,7 +289,36 @@ export const CobrosPage: React.FC = () => {
                     <td style={{ textAlign: 'right', fontWeight: 600 }}>
                       S/ {Number(m.precio_acordado).toFixed(0)}
                     </td>
-                    <td style={{ textAlign: 'right', fontWeight: 700, backgroundColor: deudaCliente > 0 ? '#fef2f2' : 'transparent', color: deudaCliente > 0 ? '#dc2626' : 'inherit' }}>
+                    <td 
+                      style={{ 
+                        textAlign: 'right', 
+                        fontWeight: 700, 
+                        backgroundColor: deudaCliente > 0 ? '#fef2f2' : 'transparent', 
+                        color: deudaCliente > 0 ? '#dc2626' : 'inherit',
+                        cursor: deudaCliente > 0 ? 'pointer' : 'default'
+                      }}
+                      title={deudaCliente > 0 ? "Ver detalle de la deuda" : ""}
+                      onClick={() => {
+                        if (deudaCliente > 0) {
+                          const mesesDeuda = [];
+                          for (let i = 1; i <= 12; i++) {
+                            if (m.meses[i]?.estado === 'DEUDA') {
+                              mesesDeuda.push({
+                                mes: i,
+                                nombre: NOMBRES_MESES[i - 1],
+                                monto: Number(m.meses[i].monto || m.precio_acordado),
+                                observacion: m.meses[i].observacion
+                              });
+                            }
+                          }
+                          setSelectedDeudaDetalle({
+                            contrato: m,
+                            mesesDeuda,
+                            total: deudaCliente
+                          });
+                        }
+                      }}
+                    >
                       {deudaCliente > 0 ? `S/ ${deudaCliente.toFixed(2)}` : '-'}
                     </td>
                     <td style={{ textAlign: 'center' }}>
@@ -300,6 +338,29 @@ export const CobrosPage: React.FC = () => {
 
                     {/* Celdas de meses */}
                     {Array.from({ length: 12 }, (_, i) => i + 1).map(mesNum => {
+                      let isDisabled = false;
+                      if (m.fecha_inicio) {
+                        const dateInicio = new Date(m.fecha_inicio);
+                        if (dateInicio.getFullYear() > anio) {
+                          isDisabled = true;
+                        } else if (dateInicio.getFullYear() === anio && mesNum < dateInicio.getMonth() + 1) {
+                          isDisabled = true;
+                        }
+                      }
+
+                      if (isDisabled) {
+                        return (
+                          <td 
+                            key={mesNum} 
+                            style={{ 
+                              backgroundColor: '#f1f5f9', 
+                              border: '1px solid #e2e8f0'
+                            }}
+                            title="Mes anterior a la fecha de inicio del contrato"
+                          />
+                        );
+                      }
+
                       const cobro = m.meses[mesNum];
                       let bgColor = 'transparent';
                       let content = '';
@@ -445,6 +506,76 @@ export const CobrosPage: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Detalle de Deuda Total */}
+      {selectedDeudaDetalle && (
+        <div className="modal-overlay">
+          <div className="modal-content" style={{ maxWidth: '500px' }}>
+            <div className="modal-header">
+              <h3>Detalle de Deuda Pendiente</h3>
+              <button className="close-btn" onClick={() => setSelectedDeudaDetalle(null)}>
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div style={{ marginBottom: '1rem', padding: '1rem', backgroundColor: '#fef2f2', borderRadius: '0.5rem', border: '1px solid #fecaca' }}>
+              <div style={{ fontSize: '0.85rem', color: '#991b1b', marginBottom: '0.25rem' }}>Cliente</div>
+              <div style={{ fontWeight: 800, fontSize: '1.1rem', color: '#7f1d1d' }}>
+                {selectedDeudaDetalle.contrato.nombre} {selectedDeudaDetalle.contrato.apellido}
+              </div>
+              <div style={{ fontSize: '0.85rem', color: '#991b1b', marginTop: '0.25rem' }}>
+                <strong>Doc:</strong> {selectedDeudaDetalle.contrato.num_doc} | <strong>Cód. Pago:</strong> {selectedDeudaDetalle.contrato.codigo_pago || '-'}
+              </div>
+              <div style={{ fontSize: '0.85rem', color: '#991b1b', marginTop: '0.25rem' }}>
+                <strong>Plan:</strong> {selectedDeudaDetalle.contrato.plan_desc}
+              </div>
+            </div>
+
+            <div style={{ maxHeight: '300px', overflowY: 'auto', marginBottom: '1rem' }}>
+              <table className="data-table" style={{ fontSize: '0.85rem' }}>
+                <thead>
+                  <tr>
+                    <th style={{ backgroundColor: '#f8fafc' }}>Mes Pendiente</th>
+                    <th style={{ backgroundColor: '#f8fafc' }}>Detalle / Comprobante</th>
+                    <th style={{ backgroundColor: '#f8fafc', textAlign: 'right' }}>Monto (S/)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {selectedDeudaDetalle.mesesDeuda.map((item) => (
+                    <tr key={item.mes}>
+                      <td style={{ fontWeight: 600 }}>{item.nombre} {anio}</td>
+                      <td style={{ color: 'var(--text-muted)', fontSize: '0.75rem', fontStyle: item.observacion ? 'normal' : 'italic' }}>
+                        {item.observacion || 'Sin detalles (Manual)'}
+                      </td>
+                      <td style={{ textAlign: 'right', color: '#dc2626', fontWeight: 700 }}>
+                        S/ {item.monto.toFixed(2)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td colSpan={2} style={{ textAlign: 'right', fontWeight: 800, padding: '0.75rem' }}>TOTAL DEUDA:</td>
+                    <td style={{ textAlign: 'right', fontWeight: 900, color: '#dc2626', fontSize: '1.1rem', padding: '0.75rem' }}>
+                      S/ {selectedDeudaDetalle.total.toFixed(2)}
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <button 
+                className="btn-secondary" 
+                style={{ width: '100%' }}
+                onClick={() => setSelectedDeudaDetalle(null)}
+              >
+                Cerrar Detalle
+              </button>
+            </div>
           </div>
         </div>
       )}
