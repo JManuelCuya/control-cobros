@@ -15,6 +15,9 @@ interface Cliente {
   direccion?: string;
   id_sucursal?: number;
   sucursal?: any;
+  id_departamento?: number;
+  id_provincia?: number;
+  id_distrito?: number;
 }
 
 interface Plan {
@@ -33,6 +36,7 @@ interface Contrato {
   precio_acordado: string | number;
   estado: string;
   plan?: Plan;
+  fecha_inicio?: string;
 }
 
 export const ClientesPage: React.FC = () => {
@@ -73,6 +77,7 @@ export const ClientesPage: React.FC = () => {
     nombre: '',
     apellido: '',
     id_departamento: '',
+    id_provincia: '',
     id_distrito: '',
     direccion: '',
     telefonos: '',
@@ -88,7 +93,10 @@ export const ClientesPage: React.FC = () => {
     telefono: '',
     email: '',
     direccion: '',
-    id_sucursal: ''
+    id_sucursal: '',
+    id_departamento: '',
+    id_provincia: '',
+    id_distrito: ''
   });
 
   const cargarClientes = async () => {
@@ -178,7 +186,10 @@ export const ClientesPage: React.FC = () => {
       telefono: '',
       email: '',
       direccion: '',
-      id_sucursal: ''
+      id_sucursal: '',
+      id_departamento: '',
+      id_provincia: '',
+      id_distrito: ''
     });
     setIsModalOpen(true);
   };
@@ -193,8 +204,15 @@ export const ClientesPage: React.FC = () => {
       telefono: c.telefono || '',
       email: c.email || '',
       direccion: c.direccion || '',
-      id_sucursal: c.id_sucursal ? String(c.id_sucursal) : ''
+      id_sucursal: c.id_sucursal ? String(c.id_sucursal) : '',
+      id_departamento: c.id_departamento ? String(c.id_departamento) : '',
+      id_provincia: c.id_provincia ? String(c.id_provincia) : '',
+      id_distrito: c.id_distrito ? String(c.id_distrito) : ''
     });
+
+    if (c.id_departamento) cargarProvincias(c.id_departamento);
+    if (c.id_provincia) cargarDistritos(c.id_provincia);
+
     setIsModalOpen(true);
   };
 
@@ -203,7 +221,10 @@ export const ClientesPage: React.FC = () => {
     try {
       const payload = {
         ...formData,
-        id_sucursal: formData.id_sucursal ? Number(formData.id_sucursal) : undefined
+        id_sucursal: formData.id_sucursal ? Number(formData.id_sucursal) : undefined,
+        id_departamento: formData.id_departamento ? Number(formData.id_departamento) : undefined,
+        id_provincia: formData.id_provincia ? Number(formData.id_provincia) : undefined,
+        id_distrito: formData.id_distrito ? Number(formData.id_distrito) : undefined
       };
       
       if (editingCliente) {
@@ -326,7 +347,7 @@ export const ClientesPage: React.FC = () => {
     if (!idEquipo || !selectedCliente) return;
     try {
       const fechaHoy = new Date().toISOString().split('T')[0];
-      await decodificadoresApi.asignar(idEquipo, null, 'cliente', fechaHoy, selectedCliente.id);
+      await decodificadoresApi.asignar(idEquipo, selectedCliente.id, 'cliente', fechaHoy);
       toast.success('Equipo asignado correctamente');
       cargarEquiposCliente(selectedCliente.id);
       cargarContratosCliente(selectedCliente.id);
@@ -603,6 +624,58 @@ export const ClientesPage: React.FC = () => {
                 </div>
               </div>
 
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginTop: '1rem', marginBottom: '1rem' }}>
+                <div className="form-group">
+                  <label>Departamento</label>
+                  <select 
+                    className="form-select" 
+                    value={formData.id_departamento} 
+                    onChange={e => {
+                      setFormData({...formData, id_departamento: e.target.value, id_provincia: '', id_distrito: ''});
+                      if (e.target.value) cargarProvincias(Number(e.target.value));
+                      else setProvincias([]);
+                    }}
+                  >
+                    <option value="">--Seleccionar--</option>
+                    {departamentos.map(d => (
+                      <option key={d.id} value={d.id}>{d.descripcion}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Provincia</label>
+                  <select 
+                    className="form-select" 
+                    value={formData.id_provincia} 
+                    onChange={e => {
+                      setFormData({...formData, id_provincia: e.target.value, id_distrito: ''});
+                      if (e.target.value) cargarDistritos(Number(e.target.value));
+                      else setDistritos([]);
+                    }}
+                    disabled={!formData.id_departamento}
+                  >
+                    <option value="">--Seleccionar--</option>
+                    {provincias.map(p => (
+                      <option key={p.id} value={p.id}>{p.descripcion}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Distrito</label>
+                  <select 
+                    className="form-select" 
+                    value={formData.id_distrito} 
+                    onChange={e => setFormData({...formData, id_distrito: e.target.value})}
+                    disabled={!formData.id_provincia}
+                  >
+                    <option value="">--Seleccionar--</option>
+                    {distritos.map(d => (
+                      <option key={d.id} value={d.id}>{d.descripcion}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1.5rem' }}>
                 <button type="button" className="btn-secondary" onClick={() => setIsModalOpen(false)}>
                   Cancelar
@@ -625,7 +698,7 @@ export const ClientesPage: React.FC = () => {
                 <h3 style={{ marginBottom: '0.25rem' }}><FileText size={20} style={{ display: 'inline', marginRight: '8px' }} /> Suscripciones y Servicios</h3>
                 <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Cliente: {selectedCliente.nombre} {selectedCliente.apellido}</p>
               </div>
-              <button className="close-btn" onClick={() => { setIsContratosModalOpen(false); fetchData(); }}>
+              <button className="close-btn" onClick={() => { setIsContratosModalOpen(false); cargarClientes(); }}>
                 <X size={20} />
               </button>
             </div>
@@ -636,7 +709,7 @@ export const ClientesPage: React.FC = () => {
                   <button className="btn-primary" onClick={() => {
                     setContratoFormData({
                       direccion_servicio: selectedCliente.direccion || '',
-                      dia_cobro: 15,
+                      dia_cobro: '15',
                       id_plan: planes.length > 0 ? String(planes[0].id) : '',
                       id_pedido: '',
                       precio_acordado: planes.length > 0 ? Number(planes[0].precio) : 50.00,
@@ -822,7 +895,7 @@ export const ClientesPage: React.FC = () => {
                       className="form-input"
                       style={{ fontWeight: 800, color: '#0284c7' }}
                       value={contratoFormData.dia_cobro}
-                      onChange={(e) => setContratoFormData({ ...contratoFormData, dia_cobro: Number(e.target.value) })}
+                      onChange={(e) => setContratoFormData({ ...contratoFormData, dia_cobro: e.target.value })}
                     />
                   </div>
                   <div className="form-group">

@@ -41,6 +41,7 @@ export const SuscriptoresPage: React.FC = () => {
     nombre: '',
     apellido: '',
     id_departamento: '',
+    id_provincia: '',
     id_distrito: '',
     direccion: '',
     telefonos: '',
@@ -700,7 +701,7 @@ export const SuscriptoresPage: React.FC = () => {
                       className="form-input"
                       style={{ fontWeight: 800, color: '#0284c7' }}
                       value={contratoFormData.dia_cobro}
-                      onChange={(e) => setContratoFormData({ ...contratoFormData, dia_cobro: Number(e.target.value) })}
+                      onChange={(e) => setContratoFormData({ ...contratoFormData, dia_cobro: e.target.value })}
                     />
                   </div>
                   <div className="form-group">
