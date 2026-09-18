@@ -161,7 +161,7 @@ export class AuthService {
 
     // Si es Administrador o no tiene roles explícitos aún, conceder todas las vistas principales
     if (esAdministrador || vistasSet.size === 0) {
-      ['facturacion', 'cobros', 'pedidos', 'productos', 'categorias', 'clientes', 'empleados', 'proveedores', 'planes', 'usuarios'].forEach(v => vistasSet.add(v));
+      ['facturacion', 'cobros', 'pedidos', 'productos', 'categorias', 'clientes', 'empleados', 'proveedores', 'planes', 'usuarios', 'decodificadores', 'suscriptores', 'sucursales'].forEach(v => vistasSet.add(v));
     }
 
     const { password, ...usuarioSinPassword } = usuario;
